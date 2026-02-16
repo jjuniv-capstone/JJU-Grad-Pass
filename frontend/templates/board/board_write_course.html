@@ -1,0 +1,114 @@
+{% extends "board/board_layout.html" %}
+
+{% block title %}강의평가 글쓰기 - JJU Grad-Pass{% endblock %}
+
+{# 강의평가 탭 활성화 #}
+{% block tab_course_active %}board-tabs__item--active{% endblock %}
+
+{% block board_content %}
+<!-- ========== 강의평가 글쓰기 화면 ========== -->
+
+<div class="board-main__inner">
+  <div class="board-write">
+    <h1 class="board-write__title">새 글쓰기</h1>
+
+    <form id="boardWriteCourseForm" class="board-write__form">
+      <!-- 카테고리 (강의평가 고정) -->
+      <div class="board-write__field">
+        <label class="board-write__label">전체 카테고리</label>
+        <select class="board-write__select" disabled>
+          <option>강의평가</option>
+        </select>
+      </div>
+
+      <!-- 교수명 -->
+      <div class="board-write__field">
+        <label class="board-write__label">교수명</label>
+        <input type="text" class="board-write__input" placeholder="EX) 김교수" name="professor">
+      </div>
+
+      <!-- 과목명 -->
+      <div class="board-write__field">
+        <label class="board-write__label">과목명</label>
+        <input type="text" class="board-write__input" placeholder="EX 데이터베이스" name="subject">
+      </div>
+
+      <!-- 평점 -->
+      <div class="board-write__field">
+        <label class="board-write__label">평점</label>
+        <select class="board-write__select" name="rating">
+          <option value="">선택</option>
+          <option value="1">1점</option>
+          <option value="2">2점</option>
+          <option value="3">3점</option>
+          <option value="4">4점</option>
+          <option value="5">5점</option>
+        </select>
+      </div>
+
+      <!-- 과제량 -->
+      <div class="board-write__field">
+        <label class="board-write__label">과제량</label>
+        <select class="board-write__select" name="workload">
+          <option value="none">없음</option>
+          <option value="very_low">매우 적음</option>
+          <option value="low">적음</option>
+          <option value="medium">보통</option>
+          <option value="high">많음</option>
+          <option value="very_high">매우 많음</option>
+        </select>
+      </div>
+
+      <!-- 팀프로젝트 여부 -->
+      <div class="board-write__field">
+        <label class="board-write__label">팀프로젝트 여부</label>
+        <select class="board-write__select" name="team_project">
+          <option value="no">없음</option>
+          <option value="yes">있음</option>
+        </select>
+      </div>
+
+      <!-- 출석방식 -->
+      <div class="board-write__field">
+        <label class="board-write__label">출석방식</label>
+        <select class="board-write__select" name="attendance">
+          <option value="direct">직접 호명</option>
+          <option value="electronic">전자 출석</option>
+          <option value="none">출석 체크 안함</option>
+        </select>
+      </div>
+
+      <!-- 상세 후기 -->
+      <div class="board-write__field">
+        <label class="board-write__label">상세 후기</label>
+        <textarea class="board-write__textarea" placeholder="강의 내용.., 등 자유롭게 작성해주세요" name="content"></textarea>
+      </div>
+
+      <!-- 버튼 -->
+      <div class="board-write__actions">
+        <a href="/board/course" class="board-write__btn">취소</a>
+        <button type="submit" class="board-write__btn board-write__btn--primary">작성하기</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block board_scripts %}
+<script>
+  /**
+   * 강의평가 글쓰기 폼 제출 처리
+   * 현재는 mock: 콘솔 로그 + alert (백엔드 API 연동 전)
+   */
+  document.getElementById('boardWriteCourseForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    var data = {};
+    formData.forEach(function (value, key) {
+      data[key] = value;
+    });
+    console.log('강의평가 글쓰기 제출:', data);
+    alert('작성하기 버튼 클릭됨 (API 연동 전)');
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "board/board_layout.html" %}
+
+{% block title %}게시판 - 강의평가 - JJU Grad-Pass{% endblock %}
+
+{# 강의평가 탭 활성화 #}
+{% block tab_course_active %}board-tabs__item--active{% endblock %}
+
+{% block board_content %}
+<!-- ========== 강의평가 목록 화면 ========== -->
+
+<div class="board-main__inner board-main__grid">
+  <!-- 왼쪽: 검색 + 글 목록 -->
+  <div class="board-main__content">
+    <!-- 검색 영역 -->
+    <div class="board-search">
+      <div class="board-search__row">
+        <input type="text" class="board-search__input" placeholder="교수님 성함을 적으세요.">
+        <input type="text" class="board-search__input" placeholder="과목명 또는 과목코드를 적으세요">
+        <a href="/board/write/course" class="board-search__btn">글쓰기</a>
+      </div>
+    </div>
+
+    <!-- 글 카드 목록 (mock 데이터) -->
+    <div class="board-card-list">
+      <!-- 카드 1 -->
+      <div class="board-card">
+        <h3 class="board-card__title">데이터베이스</h3>
+        <p class="board-card__meta">김교수</p>
+        <p class="board-card__meta">평점 4</p>
+        <a href="/board/detail/1" class="board-card__link">자세히 알아보기</a>
+      </div>
+      <!-- 카드 2 -->
+      <div class="board-card">
+        <h3 class="board-card__title">인공지능</h3>
+        <p class="board-card__meta">이교수</p>
+        <p class="board-card__meta">평점 3</p>
+        <a href="/board/detail/2" class="board-card__link">자세히 알아보기</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 오른쪽: 커뮤니티 규칙 사이드바 -->
+  <aside class="board-main__sidebar">
+    <div class="board-sidebar">
+      <h3 class="board-sidebar__title">커뮤니티 규칙</h3>
+      <p class="board-sidebar__text">타인을 존중하는 언어를 사용해주세요.
+개인정보를 공유하지 마세요
+허위 정보를 유포하지 마세요
+학업과 관련된 건전한 정보를 공유해주세요.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

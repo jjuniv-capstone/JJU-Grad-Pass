@@ -1,0 +1,66 @@
+{% extends "board/board_layout.html" %}
+
+{% block title %}익명 글쓰기 - JJU Grad-Pass{% endblock %}
+
+{# 익명 탭 활성화 #}
+{% block tab_anonymous_active %}board-tabs__item--active{% endblock %}
+
+{% block board_content %}
+<!-- ========== 익명/복학생/부전공/복수전공 글쓰기 화면 ========== -->
+
+<div class="board-main__inner">
+  <div class="board-write">
+    <h1 class="board-write__title">새 글쓰기</h1>
+
+    <form id="boardWriteCommunityForm" class="board-write__form">
+      <!-- 카테고리 -->
+      <div class="board-write__field">
+        <label class="board-write__label">전체 카테고리</label>
+        <select class="board-write__select" name="category">
+          <option value="anonymous">익명</option>
+          <option value="returning">복학생</option>
+          <option value="minor">부전공</option>
+          <option value="double">복수전공</option>
+        </select>
+      </div>
+
+      <!-- 제목 -->
+      <div class="board-write__field">
+        <label class="board-write__label">제목</label>
+        <input type="text" class="board-write__input" placeholder="제목을 입력하세요." name="title">
+      </div>
+
+      <!-- 내용 -->
+      <div class="board-write__field">
+        <label class="board-write__label">내용</label>
+        <textarea class="board-write__textarea" placeholder="내용을 입력하세요.." name="content"></textarea>
+      </div>
+
+      <!-- 버튼 -->
+      <div class="board-write__actions">
+        <a href="/board/community" class="board-write__btn">취소</a>
+        <button type="submit" class="board-write__btn board-write__btn--primary">작성하기</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block board_scripts %}
+<script>
+  /**
+   * 익명/커뮤니티 글쓰기 폼 제출 처리
+   * 현재는 mock: 콘솔 로그 + alert (백엔드 API 연동 전)
+   */
+  document.getElementById('boardWriteCommunityForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    var data = {};
+    formData.forEach(function (value, key) {
+      data[key] = value;
+    });
+    console.log('커뮤니티 글쓰기 제출:', data);
+    alert('작성하기 버튼 클릭됨 (API 연동 전)');
+  });
+</script>
+{% endblock %}
