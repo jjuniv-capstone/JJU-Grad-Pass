@@ -16,8 +16,9 @@ def create_app(config_class=Config) -> Flask:
     app = Flask(__name__, template_folder=str(template_dir), static_folder=str(static_dir))
     app.config.from_object(config_class)
 
-    from app.routes import api_bp
+    from app.routes import api_bp, board_bp
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(board_bp)
 
     @app.route('/')
     def index():

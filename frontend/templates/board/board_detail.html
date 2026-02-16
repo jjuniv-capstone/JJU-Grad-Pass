@@ -1,0 +1,84 @@
+{% extends "board/board_layout.html" %}
+
+{% block title %}게시판 상세 - JJU Grad-Pass{% endblock %}
+
+{# 강의평가 탭 활성화 (상세는 강의평가 글) #}
+{% block tab_course_active %}board-tabs__item--active{% endblock %}
+
+{% block board_content %}
+<!-- ========== 강의평가 상세 (자세히 알아보기) - Figma 디자인 반영 ========== -->
+
+<div class="board-main__inner">
+  <!-- 검색 영역 (Figma: 목록과 동일 구조, 상단 배치) -->
+  <div class="board-search board-detail__search">
+    <div class="board-search__row">
+      <input type="text" class="board-search__input" placeholder="데이터베이스">
+      <input type="text" class="board-search__input" placeholder="김교수">
+      <a href="/board/write/course" class="board-search__btn">글쓰기</a>
+    </div>
+  </div>
+
+  <!-- 상세 카드 컨테이너 (Figma: stroke #0056a1, border-radius 26px) -->
+  <div class="board-detail-card">
+    <!-- 뒤로가기 -->
+    <a href="/board/course" class="board-detail-card__back">뒤로가기</a>
+
+    <!-- 과목명 (36px, #157ebb, 상단 강조) -->
+    <h2 class="board-detail-card__subject">데이터베이스</h2>
+
+    <!-- 메타 정보 (32px, #157ebb) -->
+    <p class="board-detail-card__meta">교수명 : 김교수</p>
+    <p class="board-detail-card__meta">수강학기 : 4학년 1학기</p>
+    <p class="board-detail-card__meta">평점 : 4점</p>
+    <p class="board-detail-card__meta">과제량 : 없음</p>
+    <p class="board-detail-card__meta">팀프로젝트 여부 : 있음</p>
+    <p class="board-detail-card__meta">출석 방식 : 직접호명</p>
+
+    <!-- 상세후기 섹션 (제목 #000000, 본문 #1e1e1e) -->
+    <h3 class="board-detail-card__subtitle">상세후기</h3>
+    <p class="board-detail-card__body">과제가 많긴 하지만 실무에 도움되는 내용들을 많이 배울 수 있습니다. 팀플이 있어서 조원 복불복이 좀 있어요. 중간고사, 기말고사 모두 서술형 위주입니다.</p>
+
+    <!-- 댓글 섹션 (Figma: 댓글 달 수 있는 영역) -->
+    <section class="board-detail-comments">
+      <h3 class="board-detail-comments__title">댓글 (2)</h3>
+
+      <!-- 댓글 목록 (mock 데이터) -->
+      <ul class="board-detail-comments__list">
+        <li class="board-detail-comment">
+          <p class="board-detail-comment__author">익명</p>
+          <p class="board-detail-comment__text">저도 수강했는데 공감해요!</p>
+        </li>
+        <li class="board-detail-comment">
+          <p class="board-detail-comment__author">익명</p>
+          <p class="board-detail-comment__text">팀플 조원 잘 만나시길 바랍니다.</p>
+        </li>
+      </ul>
+
+      <!-- 댓글 작성 폼 -->
+      <div class="board-detail-comment-form">
+        <textarea class="board-detail-comment-form__input" placeholder="댓글을 입력하세요." rows="3"></textarea>
+        <button type="button" class="board-detail-comment-form__btn">댓글 등록</button>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block board_scripts %}
+<script>
+  /**
+   * 댓글 등록 버튼 클릭 (mock - API 연동 전)
+   */
+  document.querySelector('.board-detail-comment-form__btn')?.addEventListener('click', function () {
+    var textarea = document.querySelector('.board-detail-comment-form__input');
+    var content = textarea?.value?.trim();
+    if (!content) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+    console.log('댓글 등록:', content);
+    alert('댓글 등록됨 (API 연동 전)');
+    textarea.value = '';
+  });
+</script>
+{% endblock %}

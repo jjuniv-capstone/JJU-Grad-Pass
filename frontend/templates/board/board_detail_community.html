@@ -1,0 +1,81 @@
+{% extends "board/board_layout.html" %}
+
+{% block title %}{{ post.title }} - JJU Grad-Pass{% endblock %}
+
+{# 현재 글의 카테고리에 따라 탭 활성화 #}
+{% block tab_anonymous_active %}{% if category == 'anonymous' %}board-tabs__item--active{% endif %}{% endblock %}
+{% block tab_returning_active %}{% if category == 'returning' %}board-tabs__item--active{% endif %}{% endblock %}
+{% block tab_minor_active %}{% if category == 'minor' %}board-tabs__item--active{% endif %}{% endblock %}
+{% block tab_double_active %}{% if category == 'double' %}board-tabs__item--active{% endif %}{% endblock %}
+
+{% block board_content %}
+<!-- ========== 익명/복학생/부전공/복수전공 상세 (Figma: 글 클릭 시 상세 + 댓글) ========== -->
+
+<div class="board-main__inner">
+  <!-- 검색 영역 -->
+  <div class="board-search board-detail__search">
+    <div class="board-search__row">
+      <input type="text" class="board-search__input" placeholder="과목명 또는 과목코드 검색">
+      <a href="/board/write/community" class="board-search__btn">글쓰기</a>
+    </div>
+  </div>
+
+  <!-- 상세 카드 (Figma: stroke #0056a1, 댓글 가능) -->
+  <div class="board-detail-card">
+    <!-- 뒤로가기 (해당 카테고리 목록으로) -->
+    <a href="/board/community{% if category != 'anonymous' %}?cat={{ category }}{% endif %}" class="board-detail-card__back">뒤로가기</a>
+
+    <!-- 제목 -->
+    <h2 class="board-detail-card__subject">{{ post.title }}</h2>
+
+    <!-- 본문 (줄바꿈 유지) -->
+    <div class="board-detail-card__body-wrap">
+      {% if post.content %}
+      {% for line in post.content.split('\n') %}
+      <p class="board-detail-card__body">{{ line }}</p>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- 댓글 섹션 (Figma: 댓글 달 수 있는 영역) -->
+    <section class="board-detail-comments">
+      <h3 class="board-detail-comments__title">댓글 ({{ post.comments | length }})</h3>
+
+      <!-- 댓글 목록 -->
+      <ul class="board-detail-comments__list">
+        {% for c in post.comments %}
+        <li class="board-detail-comment">
+          <p class="board-detail-comment__author">{{ c.author }}</p>
+          <p class="board-detail-comment__text">{{ c.text }}</p>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <!-- 댓글 작성 폼 -->
+      <div class="board-detail-comment-form">
+        <textarea class="board-detail-comment-form__input" placeholder="댓글을 입력하세요." rows="3"></textarea>
+        <button type="button" class="board-detail-comment-form__btn">댓글 등록</button>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block board_scripts %}
+<script>
+  /**
+   * 댓글 등록 버튼 클릭 (mock - API 연동 전)
+   */
+  document.querySelector('.board-detail-comment-form__btn')?.addEventListener('click', function () {
+    var textarea = document.querySelector('.board-detail-comment-form__input');
+    var content = textarea?.value?.trim();
+    if (!content) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+    console.log('댓글 등록:', content);
+    alert('댓글 등록됨 (API 연동 전)');
+    textarea.value = '';
+  });
+</script>
+{% endblock %}
