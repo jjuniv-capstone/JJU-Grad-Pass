@@ -514,6 +514,35 @@
   color: var(--board-text-placeholder);
 }
 
+/* ========== 폼 유효성 검사 에러 메시지 ========== */
+.board-write__error {
+  display: none;
+  color: #d32f2f;
+  font-size: 20px;
+  margin-top: 6px;
+}
+
+.board-write__error--visible {
+  display: block;
+}
+
+.board-write__input--error,
+.board-write__select--error,
+.board-write__textarea--error {
+  border-color: #d32f2f;
+}
+
+/* ========== 빈 상태 메시지 ========== */
+.board-empty {
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 24px;
+  color: var(--board-text-muted);
+  background-color: var(--board-card-bg);
+  border: 1px solid var(--board-border);
+  border-radius: var(--board-radius-card);
+}
+
 /* ========== 푸터 ========== */
 .board-footer {
   background-color: var(--board-primary);

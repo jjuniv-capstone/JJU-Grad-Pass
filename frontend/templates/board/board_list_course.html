@@ -14,23 +14,31 @@
     <!-- 검색 영역 -->
     <div class="board-search">
       <div class="board-search__row">
-        <input type="text" class="board-search__input" placeholder="교수님 성함을 적으세요.">
-        <input type="text" class="board-search__input" placeholder="과목명 또는 과목코드를 적으세요">
+        <input type="text" id="searchProfessor" class="board-search__input"
+               placeholder="교수님 성함을 적으세요."
+               value="{{ professor_q }}">
+        <input type="text" id="searchSubject" class="board-search__input"
+               placeholder="과목명 또는 과목코드를 적으세요"
+               value="{{ subject_q }}">
         <a href="/board/write/course" class="board-search__btn">글쓰기</a>
       </div>
     </div>
 
     <!-- 글 카드 목록 -->
     <div class="board-card-list">
-      {% for p in posts %}
-      <div class="board-card">
-        <h3 class="board-card__title">{{ p.subject }}</h3>
-        <p class="board-card__meta">{{ p.professor }}</p>
-        <p class="board-card__meta">평점 {{ p.rating }}</p>
-        <p class="board-card__meta board-card__meta--date">{{ p.created_at }}</p>
-        <a href="/board/detail/{{ p.id }}" class="board-card__link">자세히 알아보기</a>
-      </div>
-      {% endfor %}
+      {% if posts %}
+        {% for p in posts %}
+        <div class="board-card">
+          <h3 class="board-card__title">{{ p.subject }}</h3>
+          <p class="board-card__meta">{{ p.professor }}</p>
+          <p class="board-card__meta">평점 {{ p.rating }}</p>
+          <p class="board-card__meta board-card__meta--date">{{ p.created_at }}</p>
+          <a href="/board/detail/{{ p.id }}" class="board-card__link">자세히 알아보기</a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="board-empty">검색 결과가 없습니다.</p>
+      {% endif %}
     </div>
   </div>
 

@@ -190,18 +190,47 @@ COMMUNITY_MOCK_DETAIL = {
 @board_bp.route('/')
 @board_bp.route('/course')
 def list_course():
-    """강의평가 목록 페이지"""
-    # API 연동 시: GET /api/board/course 결과로 교체
-    return render_template('board/board_list_course.html', posts=COURSE_MOCK_POSTS)
+    """강의평가 목록 페이지
+    ?professor=<이름> : 교수명 필터 (부분일치)
+    ?subject=<과목명> : 과목명 필터 (부분일치)
+    """
+    professor_q = request.args.get('professor', '').strip()
+    subject_q   = request.args.get('subject', '').strip()
+
+    posts = COURSE_MOCK_POSTS
+    if professor_q:
+        posts = [p for p in posts if professor_q in p['professor']]
+    if subject_q:
+        posts = [p for p in posts if subject_q in p['subject']]
+
+    return render_template(
+        'board/board_list_course.html',
+        posts=posts,
+        professor_q=professor_q,
+        subject_q=subject_q,
+    )
 
 
 @board_bp.route('/community')
 def list_community():
-    """익명/복학생/부전공/복수전공 목록 페이지"""
-    # API 연동 시: GET /api/board/community?cat=<category> 결과로 교체
+    """익명/복학생/부전공/복수전공 목록 페이지
+    ?cat=<category> : 탭 필터
+    ?q=<키워드>     : 제목/내용 검색 (부분일치)
+    """
     category = request.args.get('cat', 'anonymous')
+    search_q  = request.args.get('q', '').strip()
+
     posts = [p for p in COMMUNITY_MOCK_POSTS if p['category'] == category]
-    return render_template('board/board_list_community.html', category=category, posts=posts)
+    if search_q:
+        posts = [p for p in posts
+                 if search_q in p['title'] or search_q in p.get('preview', '')]
+
+    return render_template(
+        'board/board_list_community.html',
+        category=category,
+        posts=posts,
+        search_q=search_q,
+    )
 
 
 @board_bp.route('/detail/<int:post_id>')
@@ -209,11 +238,12 @@ def detail(post_id):
     """강의평가 상세 페이지"""
     # API 연동 시: GET /api/board/course/<post_id> 결과로 교체
     post = COURSE_MOCK_DETAIL.get(post_id)
-    if not post:
-        post = {'id': post_id, 'subject': '글이 없습니다', 'professor': '', 'semester': '',
+    not_found = post is None
+    if not_found:
+        post = {'id': post_id, 'subject': '', 'professor': '', 'semester': '',
                 'rating': 0, 'workload': '', 'team_project': '', 'attendance': '',
                 'content': '', 'comment_count': 0, 'comments': []}
-    return render_template('board/board_detail.html', post=post)
+    return render_template('board/board_detail.html', post=post, not_found=not_found)
 
 
 @board_bp.route('/community/detail/<int:post_id>')
@@ -221,11 +251,14 @@ def detail_community(post_id):
     """익명/복학생/부전공/복수전공 상세 페이지"""
     # API 연동 시: GET /api/board/community/<post_id> 결과로 교체
     post = COMMUNITY_MOCK_DETAIL.get(post_id)
-    if not post:
-        post = {'id': post_id, 'category': 'anonymous', 'title': '글이 없습니다',
+    not_found = post is None
+    if not_found:
+        post = {'id': post_id, 'category': 'anonymous', 'title': '',
                 'content': '', 'comment_count': 0, 'comments': []}
     category = post['category']
-    return render_template('board/board_detail_community.html', post_id=post_id, post=post, category=category)
+    return render_template('board/board_detail_community.html',
+                           post_id=post_id, post=post,
+                           category=category, not_found=not_found)
 
 
 @board_bp.route('/write/course')
@@ -236,5 +269,11 @@ def write_course():
 
 @board_bp.route('/write/community')
 def write_community():
-    """익명/커뮤니티 글쓰기 페이지"""
-    return render_template('board/board_write_community.html')
+    """익명/커뮤니티 글쓰기 페이지
+    ?cat=anonymous|returning|minor|double → select 초기값 설정
+    """
+    valid_cats = {'anonymous', 'returning', 'minor', 'double'}
+    cat = request.args.get('cat', 'anonymous')
+    if cat not in valid_cats:
+        cat = 'anonymous'
+    return render_template('board/board_write_community.html', cat=cat)
