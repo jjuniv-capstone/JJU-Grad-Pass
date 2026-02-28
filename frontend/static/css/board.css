@@ -483,6 +483,37 @@
   border-color: var(--board-primary);
 }
 
+/* 날짜 (목록 카드) */
+.board-card__meta--date {
+  font-size: 20px;
+  color: var(--board-text-placeholder);
+}
+
+.board-card-community__meta-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.board-card-community__date {
+  font-size: 20px;
+  color: var(--board-text-placeholder);
+}
+
+/* 댓글 헤더 (작성자 + 작성일 가로 배치) */
+.board-detail-comment__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.board-detail-comment__date {
+  font-size: 18px;
+  color: var(--board-text-placeholder);
+}
+
 /* ========== 푸터 ========== */
 .board-footer {
   background-color: var(--board-primary);

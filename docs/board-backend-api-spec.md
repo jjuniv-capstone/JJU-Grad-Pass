@@ -35,10 +35,15 @@
 
 ### 3.1 강의평가 (Course Evaluation)
 
+> DB 테이블: 게시글 (게시판ID=1) + 강의평가 확장 컬럼
+
 #### 목록 카드
 ```json
 {
   "id": 1,
+  "board_id": 1,
+  "student_id": null,
+  "created_at": "2026-01-10",
   "subject": "데이터베이스",
   "professor": "김교수",
   "rating": 4
@@ -49,6 +54,9 @@
 ```json
 {
   "id": 1,
+  "board_id": 1,
+  "student_id": null,
+  "created_at": "2026-01-10",
   "subject": "데이터베이스",
   "professor": "김교수",
   "semester": "4학년 1학기",
@@ -59,8 +67,8 @@
   "content": "과제가 많긴 하지만 실무에 도움되는...",
   "comment_count": 2,
   "comments": [
-    { "author": "익명", "text": "저도 수강했는데 공감해요!" },
-    { "author": "익명", "text": "팀플 조원 잘 만나시길 바랍니다." }
+    { "id": 1, "post_id": 1, "student_id": null, "author": "익명", "text": "저도 수강했는데 공감해요!", "created_at": "2026-01-11" },
+    { "id": 2, "post_id": 1, "student_id": null, "author": "익명", "text": "팀플 조원 잘 만나시길 바랍니다.", "created_at": "2026-01-12" }
   ]
 }
 ```
@@ -93,10 +101,15 @@
 
 ### 3.2 커뮤니티 (익명/복학생/부전공/복수전공)
 
+> DB 테이블: 게시글 (게시판ID=2~5)
+
 #### 목록 카드
 ```json
 {
   "id": 1,
+  "board_id": 2,
+  "student_id": null,
+  "created_at": "2026-01-05",
   "title": "졸업요건 확인하는 거 아시는 분",
   "preview": "학교 포털 어디에서 확인하는지 모르겠어요 ㅠㅠ",
   "comment_count": 12
@@ -107,11 +120,14 @@
 ```json
 {
   "id": 1,
+  "board_id": 2,
+  "student_id": null,
+  "created_at": "2026-01-05",
   "title": "졸업요건 확인하는 거 아시는 분",
   "content": "학교 포털 어디에서 확인하는지 모르겠어요 ㅠㅠ\n\n졸업요건 체크하는 메뉴가...",
   "comment_count": 2,
   "comments": [
-    { "author": "익명", "text": "학생지원팀에 문의해보세요!" }
+    { "id": 1, "post_id": 1, "student_id": null, "author": "익명", "text": "학생지원팀에 문의해보세요!", "created_at": "2026-01-05" }
   ]
 }
 ```
@@ -133,15 +149,22 @@
 
 ### 3.3 댓글 (공통)
 
+> DB 테이블: 댓글 (댓글ID, 내용, 작성일, 게시글ID(FK), 학번(FK))
+
 ```json
 {
+  "id": 1,
+  "post_id": 1,
+  "student_id": null,
   "author": "익명",
-  "text": "댓글 내용"
+  "text": "댓글 내용",
+  "created_at": "2026-01-05"
 }
 ```
 
+- `student_id`: DB에는 학번 저장, API 응답 시 `null` 처리 (익명 마스킹)
+- `author`: 항상 `"익명"` 으로 응답
 - 강의평가/커뮤니티 모두 동일 구조
-- 익명 게시판은 author를 "익명"으로 고정
 
 ---
 

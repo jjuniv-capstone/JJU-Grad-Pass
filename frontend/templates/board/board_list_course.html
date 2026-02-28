@@ -20,22 +20,17 @@
       </div>
     </div>
 
-    <!-- 글 카드 목록 (mock 데이터) -->
+    <!-- 글 카드 목록 -->
     <div class="board-card-list">
-      <!-- 카드 1 -->
+      {% for p in posts %}
       <div class="board-card">
-        <h3 class="board-card__title">데이터베이스</h3>
-        <p class="board-card__meta">김교수</p>
-        <p class="board-card__meta">평점 4</p>
-        <a href="/board/detail/1" class="board-card__link">자세히 알아보기</a>
+        <h3 class="board-card__title">{{ p.subject }}</h3>
+        <p class="board-card__meta">{{ p.professor }}</p>
+        <p class="board-card__meta">평점 {{ p.rating }}</p>
+        <p class="board-card__meta board-card__meta--date">{{ p.created_at }}</p>
+        <a href="/board/detail/{{ p.id }}" class="board-card__link">자세히 알아보기</a>
       </div>
-      <!-- 카드 2 -->
-      <div class="board-card">
-        <h3 class="board-card__title">인공지능</h3>
-        <p class="board-card__meta">이교수</p>
-        <p class="board-card__meta">평점 3</p>
-        <a href="/board/detail/2" class="board-card__link">자세히 알아보기</a>
-      </div>
+      {% endfor %}
     </div>
   </div>
 

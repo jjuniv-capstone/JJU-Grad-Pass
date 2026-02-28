@@ -45,7 +45,10 @@
       <ul class="board-detail-comments__list">
         {% for c in post.comments %}
         <li class="board-detail-comment">
-          <p class="board-detail-comment__author">{{ c.author }}</p>
+          <div class="board-detail-comment__header">
+            <p class="board-detail-comment__author">{{ c.author }}</p>
+            <p class="board-detail-comment__date">{{ c.created_at }}</p>
+          </div>
           <p class="board-detail-comment__text">{{ c.text }}</p>
         </li>
         {% endfor %}
