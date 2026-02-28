@@ -25,6 +25,9 @@
     <!-- 뒤로가기 (해당 카테고리 목록으로) -->
     <a href="/board/community{% if category != 'anonymous' %}?cat={{ category }}{% endif %}" class="board-detail-card__back">뒤로가기</a>
 
+    {% if not_found %}
+    <p class="board-empty">존재하지 않는 게시글입니다.</p>
+    {% else %}
     <!-- 제목 -->
     <h2 class="board-detail-card__subject">{{ post.title }}</h2>
 
@@ -43,12 +46,19 @@
 
       <!-- 댓글 목록 -->
       <ul class="board-detail-comments__list">
-        {% for c in post.comments %}
-        <li class="board-detail-comment">
-          <p class="board-detail-comment__author">{{ c.author }}</p>
-          <p class="board-detail-comment__text">{{ c.text }}</p>
-        </li>
-        {% endfor %}
+        {% if post.comments %}
+          {% for c in post.comments %}
+          <li class="board-detail-comment">
+            <div class="board-detail-comment__header">
+              <p class="board-detail-comment__author">{{ c.author }}</p>
+              <p class="board-detail-comment__date">{{ c.created_at }}</p>
+            </div>
+            <p class="board-detail-comment__text">{{ c.text }}</p>
+          </li>
+          {% endfor %}
+        {% else %}
+          <li><p class="board-empty">아직 댓글이 없습니다.</p></li>
+        {% endif %}
       </ul>
 
       <!-- 댓글 작성 폼 -->
@@ -57,6 +67,7 @@
         <button type="button" class="board-detail-comment-form__btn">댓글 등록</button>
       </div>
     </section>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

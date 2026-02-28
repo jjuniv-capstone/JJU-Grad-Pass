@@ -1,19 +1,19 @@
 {% extends "board/board_layout.html" %}
 
-{% block title %}게시판 상세 - JJU Grad-Pass{% endblock %}
+{% block title %}{{ post.subject }} - JJU Grad-Pass{% endblock %}
 
-{# 강의평가 탭 활성화 (상세는 강의평가 글) #}
+{# 강의평가 탭 활성화 #}
 {% block tab_course_active %}board-tabs__item--active{% endblock %}
 
 {% block board_content %}
 <!-- ========== 강의평가 상세 (자세히 알아보기) - Figma 디자인 반영 ========== -->
 
 <div class="board-main__inner">
-  <!-- 검색 영역 (Figma: 목록과 동일 구조, 상단 배치) -->
+  <!-- 검색 영역 -->
   <div class="board-search board-detail__search">
     <div class="board-search__row">
-      <input type="text" class="board-search__input" placeholder="데이터베이스">
-      <input type="text" class="board-search__input" placeholder="김교수">
+      <input type="text" class="board-search__input" placeholder="교수님 성함을 적으세요.">
+      <input type="text" class="board-search__input" placeholder="과목명 또는 과목코드를 적으세요">
       <a href="/board/write/course" class="board-search__btn">글쓰기</a>
     </div>
   </div>
@@ -23,35 +23,47 @@
     <!-- 뒤로가기 -->
     <a href="/board/course" class="board-detail-card__back">뒤로가기</a>
 
-    <!-- 과목명 (36px, #157ebb, 상단 강조) -->
-    <h2 class="board-detail-card__subject">데이터베이스</h2>
+    {% if not_found %}
+    <p class="board-empty">존재하지 않는 게시글입니다.</p>
+    {% else %}
+    <!-- 과목명 -->
+    <h2 class="board-detail-card__subject">{{ post.subject }}</h2>
 
-    <!-- 메타 정보 (32px, #157ebb) -->
-    <p class="board-detail-card__meta">교수명 : 김교수</p>
-    <p class="board-detail-card__meta">수강학기 : 4학년 1학기</p>
-    <p class="board-detail-card__meta">평점 : 4점</p>
-    <p class="board-detail-card__meta">과제량 : 없음</p>
-    <p class="board-detail-card__meta">팀프로젝트 여부 : 있음</p>
-    <p class="board-detail-card__meta">출석 방식 : 직접호명</p>
+    <!-- 메타 정보 -->
+    <p class="board-detail-card__meta">교수명 : {{ post.professor }}</p>
+    <p class="board-detail-card__meta">수강학기 : {{ post.semester }}</p>
+    <p class="board-detail-card__meta">평점 : {{ post.rating }}점</p>
+    <p class="board-detail-card__meta">과제량 : {{ post.workload }}</p>
+    <p class="board-detail-card__meta">팀프로젝트 여부 : {{ post.team_project }}</p>
+    <p class="board-detail-card__meta">출석 방식 : {{ post.attendance }}</p>
 
-    <!-- 상세후기 섹션 (제목 #000000, 본문 #1e1e1e) -->
+    <!-- 상세후기 섹션 -->
     <h3 class="board-detail-card__subtitle">상세후기</h3>
-    <p class="board-detail-card__body">과제가 많긴 하지만 실무에 도움되는 내용들을 많이 배울 수 있습니다. 팀플이 있어서 조원 복불복이 좀 있어요. 중간고사, 기말고사 모두 서술형 위주입니다.</p>
+    <div class="board-detail-card__body-wrap">
+      {% for line in post.content.split('\n') %}
+      <p class="board-detail-card__body">{{ line }}</p>
+      {% endfor %}
+    </div>
 
-    <!-- 댓글 섹션 (Figma: 댓글 달 수 있는 영역) -->
+    <!-- 댓글 섹션 -->
     <section class="board-detail-comments">
-      <h3 class="board-detail-comments__title">댓글 (2)</h3>
+      <h3 class="board-detail-comments__title">댓글 ({{ post.comments | length }})</h3>
 
-      <!-- 댓글 목록 (mock 데이터) -->
+      <!-- 댓글 목록 -->
       <ul class="board-detail-comments__list">
-        <li class="board-detail-comment">
-          <p class="board-detail-comment__author">익명</p>
-          <p class="board-detail-comment__text">저도 수강했는데 공감해요!</p>
-        </li>
-        <li class="board-detail-comment">
-          <p class="board-detail-comment__author">익명</p>
-          <p class="board-detail-comment__text">팀플 조원 잘 만나시길 바랍니다.</p>
-        </li>
+        {% if post.comments %}
+          {% for c in post.comments %}
+          <li class="board-detail-comment">
+            <div class="board-detail-comment__header">
+              <p class="board-detail-comment__author">{{ c.author }}</p>
+              <p class="board-detail-comment__date">{{ c.created_at }}</p>
+            </div>
+            <p class="board-detail-comment__text">{{ c.text }}</p>
+          </li>
+          {% endfor %}
+        {% else %}
+          <li><p class="board-empty">아직 댓글이 없습니다.</p></li>
+        {% endif %}
       </ul>
 
       <!-- 댓글 작성 폼 -->
@@ -60,6 +72,7 @@
         <button type="button" class="board-detail-comment-form__btn">댓글 등록</button>
       </div>
     </section>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
@@ -67,7 +80,8 @@
 {% block board_scripts %}
 <script>
   /**
-   * 댓글 등록 버튼 클릭 (mock - API 연동 전)
+   * 댓글 등록 버튼 클릭
+   * API 연동 시: POST /api/board/course/{{ post.id }}/comments 호출로 교체
    */
   document.querySelector('.board-detail-comment-form__btn')?.addEventListener('click', function () {
     var textarea = document.querySelector('.board-detail-comment-form__input');
@@ -76,7 +90,7 @@
       alert('댓글 내용을 입력해주세요.');
       return;
     }
-    console.log('댓글 등록:', content);
+    console.log('댓글 등록:', { post_id: {{ post.id }}, text: content });
     alert('댓글 등록됨 (API 연동 전)');
     textarea.value = '';
   });

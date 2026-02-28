@@ -17,23 +17,25 @@
       <div class="board-write__field">
         <label class="board-write__label">전체 카테고리</label>
         <select class="board-write__select" name="category">
-          <option value="anonymous">익명</option>
-          <option value="returning">복학생</option>
-          <option value="minor">부전공</option>
-          <option value="double">복수전공</option>
+          <option value="anonymous" {% if cat == 'anonymous' %}selected{% endif %}>익명</option>
+          <option value="returning" {% if cat == 'returning' %}selected{% endif %}>복학생</option>
+          <option value="minor"     {% if cat == 'minor'     %}selected{% endif %}>부전공</option>
+          <option value="double"    {% if cat == 'double'    %}selected{% endif %}>복수전공</option>
         </select>
       </div>
 
       <!-- 제목 -->
       <div class="board-write__field">
         <label class="board-write__label">제목</label>
-        <input type="text" class="board-write__input" placeholder="제목을 입력하세요." name="title">
+        <input type="text" class="board-write__input" placeholder="제목을 입력하세요." name="title" id="fieldTitle">
+        <p class="board-write__error" id="errorTitle">제목을 입력해주세요.</p>
       </div>
 
       <!-- 내용 -->
       <div class="board-write__field">
         <label class="board-write__label">내용</label>
-        <textarea class="board-write__textarea" placeholder="내용을 입력하세요.." name="content"></textarea>
+        <textarea class="board-write__textarea" placeholder="내용을 입력하세요.." name="content" id="fieldContent"></textarea>
+        <p class="board-write__error" id="errorContent">내용을 입력해주세요.</p>
       </div>
 
       <!-- 버튼 -->
@@ -49,18 +51,63 @@
 {% block board_scripts %}
 <script>
   /**
-   * 익명/커뮤니티 글쓰기 폼 제출 처리
-   * 현재는 mock: 콘솔 로그 + alert (백엔드 API 연동 전)
+   * 커뮤니티 글쓰기 폼 유효성 검사
+   * 필수 입력: 제목, 내용
+   * API 연동 시: validateCommunityForm() 통과 후 POST /api/board/community 호출로 교체
    */
+
+  function setFieldError(field, errorEl, hasError) {
+    var errorClass = field.tagName === 'TEXTAREA' ? 'board-write__textarea--error' : 'board-write__input--error';
+    if (hasError) {
+      field.classList.add(errorClass);
+      errorEl.classList.add('board-write__error--visible');
+    } else {
+      field.classList.remove(errorClass);
+      errorEl.classList.remove('board-write__error--visible');
+    }
+  }
+
+  function validateCommunityForm() {
+    var isValid = true;
+
+    var title = document.getElementById('fieldTitle');
+    var errorTitle = document.getElementById('errorTitle');
+    var hasErrorTitle = title.value.trim() === '';
+    setFieldError(title, errorTitle, hasErrorTitle);
+    if (hasErrorTitle) isValid = false;
+
+    var content = document.getElementById('fieldContent');
+    var errorContent = document.getElementById('errorContent');
+    var hasErrorContent = content.value.trim() === '';
+    setFieldError(content, errorContent, hasErrorContent);
+    if (hasErrorContent) isValid = false;
+
+    return isValid;
+  }
+
   document.getElementById('boardWriteCommunityForm').addEventListener('submit', function (e) {
     e.preventDefault();
+    if (!validateCommunityForm()) return;
+
     var formData = new FormData(this);
     var data = {};
-    formData.forEach(function (value, key) {
-      data[key] = value;
-    });
+    formData.forEach(function (value, key) { data[key] = value; });
     console.log('커뮤니티 글쓰기 제출:', data);
-    alert('작성하기 버튼 클릭됨 (API 연동 전)');
+    alert('작성하기 완료 (API 연동 전)');
+  });
+
+  // 입력 시 실시간 에러 제거
+  ['fieldTitle', 'fieldContent'].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', function () {
+      var errorId = id.replace('field', 'error');
+      var errorEl = document.getElementById(errorId);
+      if (el.value.trim() !== '') {
+        var errorClass = el.tagName === 'TEXTAREA' ? 'board-write__textarea--error' : 'board-write__input--error';
+        el.classList.remove(errorClass);
+        errorEl.classList.remove('board-write__error--visible');
+      }
+    });
   });
 </script>
 {% endblock %}

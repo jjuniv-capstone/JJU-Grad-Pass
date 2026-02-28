@@ -17,9 +17,37 @@
     <!-- 검색 영역 -->
     <div class="board-search">
       <div class="board-search__row">
-        <input type="text" class="board-search__input" placeholder="과목명 또는 과목코드 검색">
-        <a href="/board/write/community" class="board-search__btn">글쓰기</a>
+        <input type="text" id="searchKeyword" class="board-search__input"
+               placeholder="과목명 또는 과목코드 검색"
+               value="{{ search_q }}">
+        <a href="/board/write/community?cat={{ category }}" class="board-search__btn">글쓰기</a>
       </div>
+    </div>
+
+    <!-- 글 카드 목록 (카테고리별 다른 mock 데이터) -->
+    <div class="board-card-list">
+      {% if posts %}
+        {% for p in posts %}
+        <a href="/board/community/detail/{{ p.id }}" class="board-card-community board-card-community--link">
+          <h3 class="board-card-community__title">{{ p.title }}</h3>
+          <div class="board-card-community__footer">
+            <p class="board-card-community__preview">{{ p.preview }}</p>
+            <div class="board-card-community__meta-right">
+              <span class="board-card-community__date">{{ p.created_at }}</span>
+              <span class="board-card-community__count">
+                <svg class="board-card-community__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                {{ p.comment_count }}
+              </span>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      {% else %}
+        <p class="board-empty">검색 결과가 없습니다.</p>
+      {% endif %}
+    </div>
     </div>
 
     <!-- 글 카드 목록 (카테고리별 다른 mock 데이터) -->
@@ -29,12 +57,15 @@
         <h3 class="board-card-community__title">{{ p.title }}</h3>
         <div class="board-card-community__footer">
           <p class="board-card-community__preview">{{ p.preview }}</p>
-          <span class="board-card-community__count">
-            <svg class="board-card-community__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            {{ p.comment_count }}
-          </span>
+          <div class="board-card-community__meta-right">
+            <span class="board-card-community__date">{{ p.created_at }}</span>
+            <span class="board-card-community__count">
+              <svg class="board-card-community__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              {{ p.comment_count }}
+            </span>
+          </div>
         </div>
       </a>
       {% endfor %}
