@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - 전주대학교 맞춤형 서비스</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 1. 박스 모델 초기화 (위치 어긋남 방지 핵심) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #E4F5FF;
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 440px; /* 폼 전체 너비를 적절히 제한 */
+            text-align: center;
+        }
+
+        .title h1 {
+            color: #0487D3;
+            font-weight: 900;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .title p { color: #666; margin-bottom: 25px; font-size: 0.95rem; }
+
+        /* 2. 메인 박스 레이아웃 */
+        .signup-box {
+            background: white;
+            padding: 35px 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            width: 100%;
+        }
+
+        /* 탭 버튼 정렬 */
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border: 1px solid #0487D3;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .tab.inactive { background-color: white; color: #0487D3; }
+        .tab.active { background-color: #0487D3; color: white; }
+
+        /* 3. 입력창 위치 및 너비 수정 */
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%; /* 부모 너비에 맞춤 */
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper input, .input-wrapper select {
+            width: 100%; /* 부모 박스 밖으로 나가지 않음 */
+            padding: 12px 15px 12px 40px;
+            border: 1px solid #e1e1e1;
+            border-radius: 12px;
+            background: #fcfcfc;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper input:focus { border-color: #0487D3; background: #fff; }
+
+        /* 전공 선택 창 커스텀 */
+        select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ccc%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+
+        /* 4. 하단 버튼 위치 */
+        .signup-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #0487D3;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .login-link { font-size: 0.85rem; color: #888; }
+        .login-link a { color: #0487D3; text-decoration: none; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <div class="title">
+        <h1>전주대학교 맞춤형<br>졸업 요건 체크 서비스</h1>
+        <p>새 계정을 만드세요</p>
+    </div>
+
+    <div class="signup-box">
+        <div class="tabs">
+            <a href="login.html" class="tab inactive">로그인</a>
+            <a href="signup.html" class="tab active">회원가입</a>
+        </div>
+
+        <div class="input-group">
+            <label>이름</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" placeholder="이름을 입력하세요">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>학번</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-id-card"></i>
+                <input type="text" placeholder="학번을 입력하세요">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>비밀번호</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" placeholder="비밀번호를 입력하세요">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>비밀번호 확인</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-shield-halved"></i>
+                <input type="password" placeholder="비밀번호를 한 번 더 입력하세요">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>전공 형태</label>
+            <div class="input-wrapper">
+                <select>
+                    <option value="single">단일 전공</option>
+                    <option value="double">복수 전공</option>
+                    <option value="minor">부전공</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="signup-btn">login</button>
+
+        <p class="login-link">이미 계정이 있으신가요? <a href="#">로그인</a></p>
+    </div>
+</div>
+
+</body>
+</html>
