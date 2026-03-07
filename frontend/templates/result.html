@@ -1,0 +1,193 @@
+{% extends "layout.html" %}
+
+{% block title %}학적정보 조회 결과{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<style>.login-container { max-width: 900px; }</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+  <h1>학적정보 조회 결과</h1>
+  <p id="loadingMsg">데이터를 불러오는 중...</p>
+
+  <div id="resultSection" hidden>
+    <h2>학적정보</h2>
+    <table id="memberTable"><tbody></tbody></table>
+
+    <h2>졸업이수 총괄</h2>
+    <table id="gradTable"><tbody></tbody></table>
+
+    <h2>이수항목별 현황</h2>
+    <table id="reqTable">
+      <thead>
+        <tr>
+          <th>구분</th>
+          <th>항목</th>
+          <th>이수/기준</th>
+          <th>충족여부</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>학기별 성적</h2>
+    <div id="gradesSection"></div>
+
+    <h2>개설강좌</h2>
+    <div id="coursesSection"></div>
+    <p id="noCoursesMsg" class="no-data-msg" hidden>개설강좌 데이터가 없습니다.</p>
+  </div>
+
+  <p id="errorMsg" class="error-msg" hidden></p>
+  <p style="margin-top: 20px;"><a href="/">메인 페이지로 돌아가기</a></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const MEMBER_LABELS = {
+  MEM_ID: "학번", MEM_NM: "이름", IRUM_ENG: "영문이름",
+  HAKJ_SEX: "성별", DAEHAK: "단과대학", SOSOK: "소속",
+  GYEYEL: "계열", HAKBU: "학부", HAKGWA: "학과",
+  HAKJ_YEAR: "학년", HAKJ_IPHAK_ILJA: "입학일자",
+  HAKJ_ISU_HAKGI: "이수학기", GRAD_YN: "졸업여부",
+};
+
+const GRAD_LABELS = {
+  hakjum_sum: "취득학점", hakjum_grad: "졸업기준학점",
+  hakjum_need: "부족학점", sugang_sum: "수강학점", gijun_year: "기준년도",
+};
+
+function renderTable(tbody, labels, data) {
+  for (const [key, label] of Object.entries(labels)) {
+    if (data[key] !== undefined && data[key] !== "") {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<th>${label}</th><td>${data[key]}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+}
+
+function createDropdown(title, contentEl) {
+  const details = document.createElement("details");
+  const summary = document.createElement("summary");
+  summary.textContent = title;
+  details.appendChild(summary);
+  details.appendChild(contentEl);
+  return details;
+}
+
+fetch("/api/instar/result")
+  .then(r => r.json())
+  .then(result => {
+    document.getElementById("loadingMsg").hidden = true;
+    if (result.success) {
+      const { member, graduation, requirements, grades, courses } = result.data;
+      renderTable(document.querySelector("#memberTable tbody"), MEMBER_LABELS, member);
+      renderTable(document.querySelector("#gradTable tbody"), GRAD_LABELS, graduation);
+
+      const reqBody = document.querySelector("#reqTable tbody");
+      for (const req of requirements) {
+        const tr = document.createElement("tr");
+        const passClass = req.passed === "Y" ? "pass" : "fail";
+        const passText = req.passed === "Y" ? "충족" : "미충족";
+        tr.innerHTML = `
+          <td>${req.category}</td>
+          <td>${req.item_name}</td>
+          <td>${req.result} / ${req.standard} ${req.unit}</td>
+          <td class="${passClass}">${passText}</td>
+        `;
+        reqBody.appendChild(tr);
+      }
+
+      // 학기별 성적 (드롭다운)
+      if (grades && grades.length) {
+        const gradesDiv = document.getElementById("gradesSection");
+        const grouped = {};
+        for (const g of grades) {
+          const key = g.year + "-" + g.semester;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(g);
+        }
+        for (const key of Object.keys(grouped).sort()) {
+          const [y, s] = key.split("-");
+          const table = document.createElement("table");
+          table.innerHTML = `<thead><tr>
+            <th>과목명</th><th>이수구분</th><th>학점</th>
+            <th>점수</th><th>등급</th><th>평점</th><th>교수</th>
+          </tr></thead>`;
+          const tbody = document.createElement("tbody");
+          for (const g of grouped[key]) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${g.subject}</td><td>${g.category}</td>
+              <td>${g.credits}</td><td>${g.score}</td>
+              <td>${g.grade}</td><td>${g.gpa}</td><td>${g.professor}</td>`;
+            tbody.appendChild(tr);
+          }
+          table.appendChild(tbody);
+          const dropdown = createDropdown(
+            `${y}년 ${s}학기 (${grouped[key].length}과목)`,
+            table
+          );
+          gradesDiv.appendChild(dropdown);
+        }
+      }
+
+      // 개설강좌 (이수구분별 드롭다운)
+      if (courses && courses.length) {
+        const coursesDiv = document.getElementById("coursesSection");
+        const grouped = {};
+        for (const c of courses) {
+          const cat = c.category || "기타";
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(c);
+        }
+        for (const cat of Object.keys(grouped).sort()) {
+          const table = document.createElement("table");
+          table.className = "courses-table";
+          table.innerHTML = `<thead><tr>
+            <th>학수번호</th><th>과목명</th><th>학점</th>
+            <th>대상학년</th><th>교수</th><th>시간/강의실</th>
+            <th>수강/정원</th><th>수업방식</th>
+          </tr></thead>`;
+          const tbody = document.createElement("tbody");
+          for (const c of grouped[cat]) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${c.code}${c.bunban ? "-" + c.bunban : ""}</td>
+              <td>${c.subject}</td>
+              <td>${c.credits}</td>
+              <td>${c.year_target || ""}</td>
+              <td>${c.professor}</td>
+              <td>${c.schedule || ""}</td>
+              <td>${c.enrolled}/${c.capacity}</td>
+              <td>${c.method || ""}</td>
+            `;
+            tbody.appendChild(tr);
+          }
+          table.appendChild(tbody);
+          const dropdown = createDropdown(
+            `${cat} (${grouped[cat].length}과목)`,
+            table
+          );
+          coursesDiv.appendChild(dropdown);
+        }
+      } else {
+        document.getElementById("noCoursesMsg").hidden = false;
+      }
+
+      document.getElementById("resultSection").hidden = false;
+    } else {
+      document.getElementById("errorMsg").textContent = result.message;
+      document.getElementById("errorMsg").hidden = false;
+    }
+  })
+  .catch(() => {
+    document.getElementById("loadingMsg").hidden = true;
+    document.getElementById("errorMsg").textContent = "데이터를 불러올 수 없습니다.";
+    document.getElementById("errorMsg").hidden = false;
+  });
+</script>
+{% endblock %}
