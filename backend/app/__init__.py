@@ -23,15 +23,23 @@ def create_app(config_class=Config) -> Flask:
 
     @app.route('/')
     def index():
-        return render_template('index.html')
+        return render_template('home_overview/home_overview_before.html')
 
     @app.route('/login')
     def login_page():
-        return render_template('login.html')
+        return render_template('login/login.html')
 
-    @app.route('/instar')
-    def instar_page():
-        return render_template('login_iframe.html')
+    @app.route('/signup')
+    def signup_page():
+        return render_template('login/signup.html')
+
+    @app.route('/home')
+    def home_page():
+        return render_template('home_overview/home_overview_after.html')
+
+    @app.route('/intro')
+    def intro_page():
+        return render_template('home_overview/home_overview_before.html')
 
     @app.route('/result')
     def result_page():
