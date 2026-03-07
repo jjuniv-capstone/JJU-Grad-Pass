@@ -154,6 +154,14 @@ CREATE TABLE post (
     content TEXT,
     board_id INTEGER,
     student_id VARCHAR(9),
+    -- 강의평가 확장 컬럼 (커뮤니티 글에서는 NULL)
+    professor VARCHAR(60),
+    subject VARCHAR(100),
+    semester VARCHAR(20),
+    rating INTEGER,
+    workload VARCHAR(20),
+    team_project VARCHAR(5),
+    attendance VARCHAR(20),
     FOREIGN KEY (board_id) REFERENCES board(board_id),
     FOREIGN KEY (student_id) REFERENCES users(student_id)
 );
@@ -268,14 +276,16 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 **응답:**
 ```json
 // 성공
-{ "success": true, "message": "로그인 성공", "user": { "name": "홍길동", "student_id": "202168043" } }
+{ "success": true, "message": "로그인 성공", "token": "JWT토큰문자열", "user": { "name": "홍길동", "student_id": "202168043" } }
 
 // 실패
 { "success": false, "message": "학번 또는 비밀번호가 올바르지 않습니다." }
 ```
 
-**세션/인증 방식:**
-- Flask session 또는 JWT 중 택 1
+**인증 방식: JWT**
+- 로그인 성공 시 JWT 토큰을 응답에 포함하여 발급
+- 프론트에서 토큰을 localStorage에 저장, 이후 API 요청 시 `Authorization: Bearer <토큰>` 헤더로 전송
+- 크롬 확장 프로그램에서도 동일한 토큰을 사용하여 인스타 연동 API 인증 (11장 참고)
 - 로그인 성공 시 프론트에서 `/home`으로 이동
 
 ### 4.3 로그아웃
@@ -471,7 +481,73 @@ DB 연동 시 해당 부분을 실제 `fetch` 호출로 교체하면 됨.
 
 ---
 
-## 7. 파일 구조 가이드
+## 7. 인스타 연동 (이미 구현됨)
+
+크롬 확장 프로그램을 통해 전주대 인스타(학적정보 시스템)에서 데이터를 가져오는 기능이 이미 구현되어 있습니다.
+
+### 7.1 연동 흐름
+
+```
+1. 사용자가 홈에서 "인스타 연동하러 가기" 클릭
+2. instar.jj.ac.kr#jj_sync 새 탭 열림
+3. 사용자가 인스타에 로그인
+4. 크롬 확장이 XHR 후킹으로 로그인 응답 감지 → 학적정보 + JSESSIONID 추출
+5. 확장이 POST /api/instar/save-result 로 데이터 전송
+6. 백엔드가 JSESSIONID로 졸업정보, 성적, 개설강좌를 추가 조회
+7. 서버사이드 _result_store에 저장 (세션 쿠키 크기 제한 우회)
+8. 프론트에서 GET /api/instar/result 로 저장된 데이터 조회
+```
+
+### 7.2 이미 구현된 API
+
+| Method | Endpoint | 파일 | 설명 |
+|--------|----------|------|------|
+| POST | `/api/instar/login` | `routes/instar.py` | 인스타 로그인 (직접 호출용, 현재 미사용) |
+| POST | `/api/instar/save-result` | `routes/instar.py` | 크롬 확장에서 학적정보 수신 및 저장 |
+| GET | `/api/instar/result` | `routes/instar.py` | 저장된 학적정보 반환 |
+
+### 7.3 저장되는 데이터 구조
+
+```json
+{
+  "success": true,
+  "data": {
+    "member": {
+      "MEM_ID": "학번", "MEM_NM": "이름", "DAEHAK": "단과대학",
+      "HAKGWA": "학과", "HAKJ_YEAR": "학년", "HAKJ_ISU_HAKGI": "이수학기" ...
+    },
+    "graduation": {
+      "hakjum_sum": "취득학점", "hakjum_grad": "졸업기준학점",
+      "hakjum_need": "부족학점" ...
+    },
+    "requirements": [
+      { "category": "이수구분", "item_name": "항목명", "result": "이수값",
+        "standard": "기준값", "unit": "단위", "passed": "Y/N" }
+    ],
+    "grades": [
+      { "year": "년도", "semester": "학기", "code": "과목코드",
+        "subject": "과목명", "category": "이수구분", "credits": "학점",
+        "score": "점수", "grade": "등급", "gpa": "평점", "professor": "교수" }
+    ],
+    "courses": [
+      { "code": "과목코드", "subject": "과목명", "category": "이수구분",
+        "credits": "학점", "professor": "교수", "schedule": "시간표",
+        "enrolled": "수강인원", "capacity": "정원", "year_target": "대상학년",
+        "bunban": "분반", "method": "수업방식" }
+    ]
+  }
+}
+```
+
+### 7.4 참고사항
+
+- `_result_store`는 서버 메모리에 저장 (서버 재시작 시 초기화됨)
+- DB 연동 후에는 인스타 데이터를 users 테이블에 반영하는 로직 추가 필요 (semester_count, total_credits, dept_code 등)
+- `result.html`, `recommend.html`이 `/api/instar/result`를 호출하여 데이터 표시
+
+---
+
+## 8. 파일 구조 가이드
 
 ```
 backend/app/
@@ -497,38 +573,104 @@ app.register_blueprint(auth_bp, url_prefix='/api/auth')
 
 ---
 
-## 8. 필요 패키지
+## 9. 필요 패키지
 
 ```
 Flask-SQLAlchemy
 Flask-Bcrypt
+PyJWT
 ```
 
 `requirements.txt`에 추가 필요.
 
 ---
 
-## 9. 구현 우선순위
+## 10. 구현 우선순위
 
 1. DB 설정 (SQLite + SQLAlchemy + config.py)
 2. User 모델 (`models/user.py`)
 3. 회원가입 API (`POST /api/auth/signup`)
-4. 로그인/로그아웃 API
+4. 로그인/로그아웃 API (JWT 토큰 발급)
 5. 페이지 접근 제어 (로그인 체크 데코레이터)
-6. 게시판 DB 연동 (mock → 실제 DB)
+6. 인스타 연동 API에 JWT 인증 추가 (`/api/instar/save-result`)
+7. `_result_store` → DB 저장으로 전환 (users, enrollment 등 테이블에 반영)
+8. 게시판 DB 연동 (mock → 실제 DB)
 
 ---
 
-## 10. 체크리스트
+## 11. 보안 고려사항
+
+### 11.1 인스타 연동 API 인증
+
+현재 `/api/instar/save-result` 엔드포인트는 인증 없이 누구나 데이터를 전송할 수 있는 상태.
+
+**취약 구간:**
+
+정상 흐름에서 "크롬 확장 프로그램 → 우리 서버 Flask" 구간은 단순한 HTTP POST 요청임.
+이 구간에 외부 공격자가 curl 등으로 동일한 요청을 보낼 수 있음.
+
+```
+정상:  크롬 확장 프로그램 ──POST──→ 우리 서버 Flask   (정상 학적데이터)
+공격:  외부 공격자(curl)  ──POST──→ 우리 서버 Flask   (가짜 학적데이터)
+```
+
+서버 입장에서는 두 요청이 동일한 형태이므로 구분할 수 없음.
+
+**공격 시나리오:**
+```bash
+# 외부 공격자가 다른 사람 학번으로 가짜 학적정보를 전송
+curl -X POST http://서버/api/instar/save-result \
+  -H "Content-Type: application/json" \
+  -d '{"member": {"MEM_ID": "202168043", "MEM_NM": "가짜이름"}, "jsessionid": "아무값"}'
+```
+
+→ 서버가 이를 정상 데이터로 판단하고 저장 → 해당 학번의 학적정보가 가짜로 덮어씌워짐
+
+**해결:** 크롬 확장 프로그램이 데이터 전송 시 로그인 토큰을 함께 전송 → 서버에서 검증
+
+```
+[사용자 로그인] → 서버가 JWT 토큰 발급
+[크롬 확장] → POST /api/instar/save-result + Authorization: Bearer <토큰>
+[서버] → 토큰 검증 → 유효한 사용자인지 확인 → 저장
+         토큰 없거나 위조 → 401 거부
+```
+
+**구현 포인트:**
+- `background.js`: fetch 헤더에 `Authorization: Bearer <토큰>` 추가
+- `instar.py`: 요청 수신 시 토큰 검증 후 처리 (미인증 시 401 반환)
+- 토큰은 웹사이트 로그인 시 발급되므로, **4장 인증 API 구현이 선행**되어야 함
+
+### 11.2 기타 보안 항목
+
+- **HTTPS 적용**: 배포 시 HTTP → HTTPS 전환 필수 (평문 데이터 노출 방지)
+- **postMessage targetOrigin 제한**: `content_main.js`에서 `postMessage("*")` → `postMessage("https://instar.jj.ac.kr")`로 변경
+- **비밀번호 해싱**: 회원가입 시 bcrypt 등으로 해싱 저장 (4.1절 참고)
+- **게시판 API 인증**: 글쓰기/댓글 API도 로그인 토큰 검증 필요
+
+---
+
+## 12. 체크리스트
+
+**보안:**
+- [ ] 로그인 API 구현 후 JWT 토큰 발급
+- [ ] `/api/instar/save-result`에 토큰 검증 추가
+- [ ] `background.js`에 Authorization 헤더 추가
+- [ ] `content_main.js` postMessage targetOrigin 제한
+- [ ] 배포 시 HTTPS 적용
 
 **인증:**
 - [ ] config.py에 SQLALCHEMY 설정 추가
 - [ ] User 모델 구현 (models/user.py)
 - [ ] auth.py 블루프린트 생성 및 등록
 - [ ] 회원가입 API (학번 중복체크, 비밀번호 해싱)
-- [ ] 로그인 API (세션 또는 JWT)
+- [ ] 로그인 API (JWT 토큰 발급)
 - [ ] 로그아웃 API
 - [ ] 페이지 접근 제어 데코레이터
+
+**인스타 연동 DB 전환:**
+- [ ] `_result_store` 메모리 저장 → DB 저장으로 전환
+- [ ] 인스타 데이터를 users 테이블에 반영 (semester_count, total_credits, dept_code)
+- [ ] 성적 데이터를 enrollment 테이블에 반영
 
 **게시판:**
 - [ ] DB 테이블 생성 (게시판, 게시글, 댓글)
