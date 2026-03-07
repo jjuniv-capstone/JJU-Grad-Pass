@@ -162,5 +162,29 @@
     </div>
 </div>
 
+<script>
+document.querySelector('.login-btn').addEventListener('click', async () => {
+    const student_id = document.getElementById('student-id').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!student_id || !password) {
+        alert('학번과 비밀번호를 입력해주세요.');
+        return;
+    }
+
+    const resp = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_id, password })
+    });
+    const result = await resp.json();
+
+    if (result.success) {
+        window.location.href = '/home';
+    } else {
+        alert(result.message);
+    }
+});
+</script>
 </body>
 </html>

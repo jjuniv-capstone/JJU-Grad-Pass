@@ -156,7 +156,7 @@
             <label>이름</label>
             <div class="input-wrapper">
                 <i class="fa-solid fa-user"></i>
-                <input type="text" placeholder="이름을 입력하세요">
+                <input type="text" id="name" placeholder="이름을 입력하세요">
             </div>
         </div>
 
@@ -164,7 +164,7 @@
             <label>학번</label>
             <div class="input-wrapper">
                 <i class="fa-solid fa-id-card"></i>
-                <input type="text" placeholder="학번을 입력하세요">
+                <input type="text" id="student-id" placeholder="학번을 입력하세요 (9자리)">
             </div>
         </div>
 
@@ -172,7 +172,7 @@
             <label>비밀번호</label>
             <div class="input-wrapper">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" placeholder="비밀번호를 입력하세요">
+                <input type="password" id="password" placeholder="비밀번호를 입력하세요 (8자 이상)">
             </div>
         </div>
 
@@ -180,14 +180,14 @@
             <label>비밀번호 확인</label>
             <div class="input-wrapper">
                 <i class="fa-solid fa-shield-halved"></i>
-                <input type="password" placeholder="비밀번호를 한 번 더 입력하세요">
+                <input type="password" id="password-confirm" placeholder="비밀번호를 한 번 더 입력하세요">
             </div>
         </div>
 
         <div class="input-group">
             <label>전공 형태</label>
             <div class="input-wrapper">
-                <select>
+                <select id="major-type">
                     <option value="single">단일 전공</option>
                     <option value="double">복수 전공</option>
                     <option value="minor">부전공</option>
@@ -195,12 +195,52 @@
             </div>
         </div>
 
-        <button class="signup-btn">login</button>
+        <button class="signup-btn">회원가입</button>
 
         <p class="login-link">이미 계정이 있으신가요? <a href="/login">로그인</a></p>
         <p class="login-link" style="margin-top: 10px;"><a href="/">홈으로 돌아가기</a></p>
     </div>
 </div>
 
+<script>
+document.querySelector('.signup-btn').addEventListener('click', async () => {
+    const name = document.getElementById('name').value.trim();
+    const student_id = document.getElementById('student-id').value.trim();
+    const password = document.getElementById('password').value;
+    const password_confirm = document.getElementById('password-confirm').value;
+    const major_type = document.getElementById('major-type').value;
+
+    if (!name || !student_id || !password || !password_confirm) {
+        alert('모든 필드를 입력해주세요.');
+        return;
+    }
+    if (!/^\d{9}$/.test(student_id)) {
+        alert('학번은 9자리 숫자여야 합니다.');
+        return;
+    }
+    if (password.length < 8) {
+        alert('비밀번호는 8자 이상이어야 합니다.');
+        return;
+    }
+    if (password !== password_confirm) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+    }
+
+    const resp = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, student_id, password, password_confirm, major_type })
+    });
+    const result = await resp.json();
+
+    if (result.success) {
+        alert(result.message);
+        window.location.href = '/login';
+    } else {
+        alert(result.message);
+    }
+});
+</script>
 </body>
 </html>
