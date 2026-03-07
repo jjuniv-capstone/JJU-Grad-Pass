@@ -17,13 +17,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then((data) => {
         console.log("[전주대 확장] 서버 응답:", data);
         if (data.success && sender.tab) {
-          chrome.tabs.update(sender.tab.id, {
-            url: "http://localhost:5000/result",
+          // 인스타 로그아웃 후 알림 표시
+          chrome.scripting.executeScript({
+            target: { tabId: sender.tab.id },
+            func: () => {
+              alert("학적정보를 성공적으로 가져왔습니다!\n홈으로 돌아가서 조회 결과를 확인하세요.");
+              window.location.href = "http://localhost:5000/";
+            },
           });
         }
       })
       .catch((err) => {
         console.error("[전주대 확장] 서버 전송 에러:", err);
+        if (sender.tab) {
+          chrome.scripting.executeScript({
+            target: { tabId: sender.tab.id },
+            func: () => {
+              alert("학적정보 전송에 실패했습니다. 다시 시도해주세요.");
+            },
+          });
+        }
       });
   }
 });

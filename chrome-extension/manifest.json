@@ -4,7 +4,8 @@
   "version": "1.0",
   "description": "전주대학교 인스타 로그인 후 학적정보를 연동합니다.",
   "permissions": [
-    "tabs"
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
     "https://instar.jj.ac.kr/*",
