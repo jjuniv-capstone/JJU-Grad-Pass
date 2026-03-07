@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "전주대 학적정보 연동",
+  "version": "1.0",
+  "description": "전주대학교 인스타 로그인 후 학적정보를 연동합니다.",
+  "permissions": [
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://instar.jj.ac.kr/*",
+    "http://localhost:5000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://instar.jj.ac.kr/*"],
+      "js": ["content_main.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://instar.jj.ac.kr/*"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    }
+  ]
+}

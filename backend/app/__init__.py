@@ -16,12 +16,33 @@ def create_app(config_class=Config) -> Flask:
     app = Flask(__name__, template_folder=str(template_dir), static_folder=str(static_dir))
     app.config.from_object(config_class)
 
-    from app.routes import api_bp, board_bp
+    from app.routes import api_bp, board_bp, instar_bp
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(board_bp)
+    app.register_blueprint(instar_bp, url_prefix='/api/instar')
 
     @app.route('/')
     def index():
-        return render_template('index.html')
+        return render_template('home_overview/home_overview_before.html')
+
+    @app.route('/login')
+    def login_page():
+        return render_template('login/login.html')
+
+    @app.route('/signup')
+    def signup_page():
+        return render_template('login/signup.html')
+
+    @app.route('/home')
+    def home_page():
+        return render_template('home_overview/home_overview_after.html')
+
+    @app.route('/intro')
+    def intro_page():
+        return render_template('home_overview/home_overview_before.html')
+
+    @app.route('/result')
+    def result_page():
+        return render_template('result.html')
 
     return app
