@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>과목 추천 서비스</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #0487D3;
+            --border-color: #e1e1e1;
+            --text-gray: #777;
+            --tag-red: #ff4d4d;
+            --tag-orange: #ffa500;
+            --tag-blue: #007bff;
+        }
+
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fbff; padding: 20px; margin: 0; }
+        .container { max-width: 800px; margin: 0 auto; }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .page-header h1 {
+            font-size: 1.8rem;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+        .page-header p {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        .search-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .search-box, .filter-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .filter-box:last-child { margin-bottom: 0; }
+        .search-box input, .filter-box select {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 0.95rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .search-box i, .filter-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .summary-box {
+            background: #e8f4fd;
+            border: 1px solid #b8ddf0;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.8;
+        }
+        .summary-box strong { color: var(--primary-blue); }
+
+        .course-list { display: flex; flex-direction: column; gap: 15px; }
+        .course-card {
+            background: #fff;
+            border: 2px solid #d1e9ff;
+            border-radius: 15px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+        }
+        .course-card:hover { transform: translateY(-3px); }
+
+        .course-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .course-top h3 { font-size: 1.2rem; color: #333; margin: 0; }
+        .tags { display: flex; gap: 8px; align-items: center; }
+        .tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+        .tag.essential { background: #fff0f0; color: var(--tag-red); }
+        .tag.recommend { background: #fff8e6; color: var(--tag-orange); }
+        .tag.select { background: #e8f0fe; color: var(--tag-blue); }
+        .tag.category { background: #f0f0f0; color: #666; }
+
+        .course-details { color: var(--text-gray); font-size: 0.85rem; }
+        .course-details span { margin-right: 15px; }
+        .recommend-reason {
+            margin-top: 8px;
+            color: var(--tag-blue);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .loading { text-align: center; padding: 40px; color: var(--primary-blue); font-weight: 700; }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .course-top { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>졸업요건 기반 과목 추천</h1>
+        <p>미충족 졸업요건에 해당하는 이번 학기 개설강좌를 추천합니다</p>
+    </div>
+
+    <div id="summaryBox" class="summary-box" hidden></div>
+
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="과목명 또는 학수번호 검색">
+        </div>
+        <div class="filter-box">
+            <i class="fa-solid fa-filter"></i>
+            <select id="categoryFilter">
+                <option value="">전체 이수구분</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="courseList" class="course-list">
+        <div class="loading">데이터를 불러오는 중입니다...</div>
+    </div>
+
+    <a href="/" class="back-link">홈으로 돌아가기</a>
+</div>
+
+<script>
+let allCourses = [];
+let takenCodes = new Set();
+let unfulfilledCategories = new Set();
+
+async function fetchData() {
+    try {
+        const resp = await fetch("/api/instar/result");
+        const result = await resp.json();
+
+        if (!result.success) {
+            document.getElementById('courseList').innerHTML =
+                '<div class="loading">학적정보가 없습니다. <a href="/">홈에서 학적정보 연동</a>을 먼저 해주세요.</div>';
+            return;
+        }
+
+        const { courses, grades, requirements } = result.data;
+
+        // 이미 수강한 과목코드
+        if (grades) {
+            for (const g of grades) {
+                if (g.code) takenCodes.add(g.code);
+            }
+        }
+
+        // 미충족 이수구분
+        if (requirements) {
+            for (const req of requirements) {
+                if (req.passed !== "Y") {
+                    unfulfilledCategories.add(req.category);
+                }
+            }
+        }
+
+        // 개설강좌 → 추천 과목 변환
+        if (courses) {
+            for (const c of courses) {
+                const isTaken = takenCodes.has(c.code);
+                const isUnfulfilled = unfulfilledCategories.has(c.category);
+
+                let status = "선택";
+                let reason = "";
+
+                if (isTaken) continue; // 이미 수강한 과목 제외
+
+                if (isUnfulfilled) {
+                    status = "필수";
+                    reason = `${c.category} 미충족`;
+                } else {
+                    status = "선택";
+                    reason = "추가 이수 가능";
+                }
+
+                allCourses.push({
+                    code: c.code + (c.bunban ? "-" + c.bunban : ""),
+                    name: c.subject,
+                    credit: c.credits,
+                    professor: c.professor,
+                    schedule: c.schedule || "",
+                    category: c.category,
+                    enrolled: c.enrolled,
+                    capacity: c.capacity,
+                    status: status,
+                    reason: reason,
+                });
+            }
+        }
+
+        // 필수를 먼저 보여줌
+        allCourses.sort((a, b) => {
+            if (a.status === "필수" && b.status !== "필수") return -1;
+            if (a.status !== "필수" && b.status === "필수") return 1;
+            return 0;
+        });
+
+        // 카테고리 필터 동적 생성
+        const categories = [...new Set(allCourses.map(c => c.category))].sort();
+        const filterEl = document.getElementById('categoryFilter');
+        for (const cat of categories) {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = cat;
+            filterEl.appendChild(opt);
+        }
+
+        // 요약 표시
+        const essentialCount = allCourses.filter(c => c.status === "필수").length;
+        const summaryBox = document.getElementById('summaryBox');
+        summaryBox.innerHTML = `
+            <strong>수강 완료:</strong> ${takenCodes.size}과목 |
+            <strong>미충족 이수구분:</strong> ${unfulfilledCategories.size > 0 ? [...unfulfilledCategories].join(", ") : "없음"} |
+            <strong>추천 과목:</strong> ${essentialCount}개 (필수)
+        `;
+        summaryBox.hidden = false;
+
+        applyFilters();
+    } catch (error) {
+        document.getElementById('courseList').innerHTML =
+            '<div class="loading">데이터를 불러오지 못했습니다.</div>';
+    }
+}
+
+function applyFilters() {
+    const filterValue = document.getElementById('categoryFilter').value;
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+
+    const filtered = allCourses.filter(course => {
+        const matchesCategory = filterValue === "" || course.category === filterValue;
+        const matchesSearch = course.name.toLowerCase().includes(searchValue)
+            || course.code.toLowerCase().includes(searchValue);
+        return matchesCategory && matchesSearch;
+    });
+
+    renderCourses(filtered);
+}
+
+function renderCourses(courses) {
+    const listContainer = document.getElementById('courseList');
+    listContainer.innerHTML = '';
+
+    if (courses.length === 0) {
+        listContainer.innerHTML = '<div class="loading">해당하는 과목이 없습니다.</div>';
+        return;
+    }
+
+    courses.forEach(course => {
+        const card = document.createElement('div');
+        card.className = 'course-card';
+
+        let statusClass = 'select';
+        if (course.status === '필수') statusClass = 'essential';
+
+        card.innerHTML = `
+            <div class="course-top">
+                <h3>${course.name}</h3>
+                <div class="tags">
+                    <span class="tag ${statusClass}">${course.status}</span>
+                    <span class="tag category">${course.category}</span>
+                </div>
+            </div>
+            <div class="course-details">
+                <span>${course.code}</span>
+                <span>${course.credit}학점</span>
+                <span>${course.professor}</span>
+                <span>${course.schedule}</span>
+                <span>${course.enrolled}/${course.capacity}명</span>
+            </div>
+            <div class="recommend-reason">
+                추천 이유: ${course.reason}
+            </div>
+        `;
+        listContainer.appendChild(card);
+    });
+}
+
+document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+fetchData();
+</script>
+</body>
+</html>

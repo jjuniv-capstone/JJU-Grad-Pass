@@ -37,6 +37,10 @@ def create_app(config_class=Config) -> Flask:
     def home_page():
         return render_template('home_overview/home_overview_after.html')
 
+    @app.route('/recommend')
+    def recommend_page():
+        return render_template('recommend/recommend.html')
+
     @app.route('/intro')
     def intro_page():
         return render_template('home_overview/home_overview_before.html')
