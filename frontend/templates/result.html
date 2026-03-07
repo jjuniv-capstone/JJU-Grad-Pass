@@ -115,13 +115,13 @@ fetch("/api/instar/result")
           const [y, s] = key.split("-");
           const table = document.createElement("table");
           table.innerHTML = `<thead><tr>
-            <th>과목명</th><th>이수구분</th><th>학점</th>
+            <th>학수번호</th><th>과목명</th><th>이수구분</th><th>학점</th>
             <th>점수</th><th>등급</th><th>평점</th><th>교수</th>
           </tr></thead>`;
           const tbody = document.createElement("tbody");
           for (const g of grouped[key]) {
             const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${g.subject}</td><td>${g.category}</td>
+            tr.innerHTML = `<td>${g.code || ""}</td><td>${g.subject}</td><td>${g.category}</td>
               <td>${g.credits}</td><td>${g.score}</td>
               <td>${g.grade}</td><td>${g.gpa}</td><td>${g.professor}</td>`;
             tbody.appendChild(tr);
