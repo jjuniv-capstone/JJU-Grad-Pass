@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-03-08" agent="Claude" version="24.0.0">
+  <diagram name="전체 아키텍처" id="arch-overview">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- ========== 타이틀 ========== -->
+        <mxCell id="title" value="JJU-Grad-Pass 과목 추천 &amp; 학사 상담 AI 아키텍처" style="text;html=1;fontSize=22;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="800" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== 1. 사전 준비 영역 ========== -->
+        <mxCell id="prep-group" value="1. 사전 준비 (1회)" style="swimlane;startSize=30;fontSize=14;fontStyle=1;fillColor=#fff2cc;strokeColor=#d6b656;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="720" height="380" as="geometry"/>
+        </mxCell>
+
+        <!-- 학사정보 문서 -->
+        <mxCell id="docs" value="전주대 학사정보 문서&lt;br&gt;&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;- 학칙 / 졸업규정&lt;br&gt;- 장학금 안내&lt;br&gt;- 휴학, 복학, 전과 규정&lt;br&gt;- 복수전공, 부전공 요건&lt;br&gt;- 학사일정&lt;br&gt;- 성적, 학점 규정&lt;/font&gt;" style="shape=document;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;align=center;fillColor=#f5f5f5;strokeColor=#666666;rounded=1;" vertex="1" parent="prep-group">
+          <mxGeometry x="30" y="50" width="200" height="180" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: 문서 → 청크 분할 -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="prep-group" source="docs" target="chunk">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow1-label" value="텍스트 추출" style="edgeLabel;fontSize=11;fontColor=#666666;" vertex="1" connectable="0" parent="arrow1">
+          <mxGeometry x="-0.1" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 청크 분할 -->
+        <mxCell id="chunk" value="청크 분할&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;문서를 500~1000자&lt;br&gt;단위로 분할&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="prep-group">
+          <mxGeometry x="300" y="50" width="160" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: 청크 → 임베딩 -->
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="prep-group" source="chunk" target="embed">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 임베딩 모델 -->
+        <mxCell id="embed" value="임베딩 모델&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;sentence-transformers&lt;br&gt;(무료, 로컬 실행)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="prep-group">
+          <mxGeometry x="300" y="170" width="160" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: 임베딩 → 벡터DB -->
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="prep-group" source="embed" target="vectordb">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 벡터 DB -->
+        <mxCell id="vectordb" value="벡터 DB&lt;br&gt;(ChromaDB)&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;학사정보 청크들이&lt;br&gt;벡터로 저장됨&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;size=15;rounded=1;" vertex="1" parent="prep-group">
+          <mxGeometry x="540" y="100" width="150" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- 개설과목 DB -->
+        <mxCell id="course-db" value="개설과목 DB&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;inSTAR에서 가져온&lt;br&gt;과목 데이터 저장&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;size=15;rounded=1;" vertex="1" parent="prep-group">
+          <mxGeometry x="540" y="240" width="150" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== 2. 질문 응답 영역 ========== -->
+        <mxCell id="qa-group" value="2. 질문 응답 (매번)" style="swimlane;startSize=30;fontSize=14;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="510" width="720" height="430" as="geometry"/>
+        </mxCell>
+
+        <!-- 사용자 질문 -->
+        <mxCell id="user-q" value="학생 질문&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;&amp;quot;휴학하려면&lt;br&gt;어떻게 해?&amp;quot;&lt;/font&gt;" style="shape=callout;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;perimeter=calloutPerimeter;size=30;position=0.5;position2=1;base=20;rounded=1;" vertex="1" parent="qa-group">
+          <mxGeometry x="30" y="50" width="140" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: 질문 → 검색 -->
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="qa-group" source="user-q" target="search">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 관련 문서 검색 -->
+        <mxCell id="search" value="관련 문서 검색&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;질문을 임베딩 후&lt;br&gt;벡터 DB에서&lt;br&gt;유사 청크 2~3개 검색&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="qa-group">
+          <mxGeometry x="230" y="50" width="180" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: 벡터DB → 검색 (점선) -->
+        <mxCell id="arrow-vdb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#6c8ebf;dashed=1;" edge="1" parent="1" source="vectordb" target="search">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="780" y="310"/>
+              <mxPoint x="780" y="480"/>
+              <mxPoint x="360" y="480"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow-vdb-label" value="유사도 검색" style="edgeLabel;fontSize=11;fontColor=#6c8ebf;" vertex="1" connectable="0" parent="arrow-vdb">
+          <mxGeometry x="0.3" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 프롬프트 조합 -->
+        <mxCell id="prompt-build" value="프롬프트 조합&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;1) 시스템 프롬프트&lt;br&gt;2) 학생 학적정보 (~1K)&lt;br&gt;3) 검색된 학사정보 (~2K)&lt;br&gt;4) 관련 과목 데이터 (~1K)&lt;br&gt;5) 학생 질문&lt;br&gt;&lt;br&gt;&lt;b&gt;총 ~5K 토큰&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=10;" vertex="1" parent="qa-group">
+          <mxGeometry x="230" y="190" width="200" height="170" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: 검색 → 프롬프트 -->
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="qa-group" source="search" target="prompt-build">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 학생 학적정보 -->
+        <mxCell id="student-info" value="학생 학적정보&lt;br&gt;(세션에서 로드)&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;- 학과, 학년&lt;br&gt;- 졸업요건 현황&lt;br&gt;- 수강 이력&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="qa-group">
+          <mxGeometry x="30" y="210" width="150" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: 학적정보 → 프롬프트 -->
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="qa-group" source="student-info" target="prompt-build">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: 프롬프트 → LLM -->
+        <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="qa-group" source="prompt-build" target="llm">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- GPT-OSS-120B -->
+        <mxCell id="llm" value="GPT-OSS-120B&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;vLLM / Ollama&lt;/font&gt;" style="shape=hexagon;whiteSpace=wrap;html=1;fontSize=14;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;size=0.15;" vertex="1" parent="qa-group">
+          <mxGeometry x="510" y="130" width="170" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- 화살표: LLM → 답변 -->
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#9673a6;" edge="1" parent="qa-group" source="llm" target="answer">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 답변 -->
+        <mxCell id="answer" value="맞춤 답변&lt;br&gt;&lt;hr&gt;&lt;font style='font-size:11px'&gt;&amp;quot;3학년 2학기이시니&lt;br&gt;일반휴학 신청 가능합니다.&lt;br&gt;신청 기간은 3/2~3/15이며&lt;br&gt;포털에서 신청하시면...&amp;quot;&lt;/font&gt;" style="shape=callout;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;perimeter=calloutPerimeter;size=30;position=0.5;position2=0;base=20;rounded=1;" vertex="1" parent="qa-group">
+          <mxGeometry x="490" y="270" width="210" height="140" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== 3. 기술 스택 범례 ========== -->
+        <mxCell id="legend" value="3. 기술 스택" style="swimlane;startSize=30;fontSize=14;fontStyle=1;fillColor=#f8cecc;strokeColor=#b85450;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="820" y="90" width="340" height="380" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="stack-be" value="Backend: Flask (Python)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="legend">
+          <mxGeometry x="30" y="50" width="280" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="stack-fe" value="Frontend: HTML/JS (Jinja2)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="legend">
+          <mxGeometry x="30" y="95" width="280" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="stack-llm" value="LLM: GPT-OSS-120B (vLLM / Ollama)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="legend">
+          <mxGeometry x="30" y="140" width="280" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="stack-emb" value="Embedding: sentence-transformers" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="legend">
+          <mxGeometry x="30" y="185" width="280" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="stack-vdb" value="Vector DB: ChromaDB (Local)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="legend">
+          <mxGeometry x="30" y="230" width="280" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="stack-ext" value="Chrome Extension: inSTAR Integration" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="legend">
+          <mxGeometry x="30" y="275" width="280" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="stack-data" value="Data: inSTAR API + Academic Documents" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="legend">
+          <mxGeometry x="30" y="320" width="280" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- ========== 4. 토큰 비교 ========== -->
+        <mxCell id="compare" value="4. 토큰 효율 비교" style="swimlane;startSize=30;fontSize=14;fontStyle=1;fillColor=#f8cecc;strokeColor=#b85450;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="820" y="510" width="340" height="200" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="before" value="[Before] 매번 전체 전송&lt;br&gt;&lt;font style='font-size:11px'&gt;학사정보 전체 + 과목 전체 + 학적정보&lt;br&gt;= ~50K+ 토큰 / 요청&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=10;" vertex="1" parent="compare">
+          <mxGeometry x="20" y="45" width="300" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="after" value="[After] RAG 방식&lt;br&gt;&lt;font style='font-size:11px'&gt;관련 청크 + 관련 과목 + 학적정보&lt;br&gt;= ~5K 토큰 / 요청 (90% 절감)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=10;" vertex="1" parent="compare">
+          <mxGeometry x="20" y="120" width="300" height="60" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

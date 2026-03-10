@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JJU Grad-Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f0f7ff; font-family: 'Pretendard', sans-serif; }
+        .card { background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .progress-bg { background-color: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 4px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <nav class="bg-[#0078d4] text-white p-3 flex justify-between items-center rounded-t-lg mb-6">
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-graduation-cap"></i>
+            <span class="font-bold">JJU Grad-Pass</span>
+        </div>
+        <div class="hidden md:flex space-x-6 text-sm">
+            <a href="#"><i class="fas fa-home"></i> 홈</a>
+            <a href="#" class="bg-[#005a9e] px-2 py-1 rounded"><i class="fas fa-th-large"></i> 대시보드</a>
+            <a href="#"><i class="fas fa-book"></i> 과목추천</a>
+            <a href="#"><i class="fas fa-chart-line"></i> 성적관리</a>
+            <a href="#"><i class="fas fa-calendar-alt"></i> 시간표</a>
+            <a href="#"><i class="fas fa-comments"></i> 게시판</a>
+        </div>
+        <div class="text-xs text-blue-200">로그아웃</div>
+    </nav>
+
+    <section class="card p-6 mb-6">
+        <h2 class="text-blue-600 font-bold mb-4 flex items-center">
+            <i class="fas fa-chart-bar mr-2"></i> 졸업 진행도
+        </h2>
+        <div class="text-sm space-y-1 mb-4">
+            <p>현재 학년과 학기 : <span class="text-blue-500 font-bold">4학년 1학기</span></p>
+            <p>남은 학기 : <span class="text-blue-500 font-bold">1학기</span></p>
+            <p>남은 학점 : <span class="text-blue-500 font-bold">32학점</span></p>
+        </div>
+        <div class="mb-2 text-xl font-bold">총 이수 학점 <span class="text-2xl">98 / 130</span></div>
+        <div class="progress-bg w-full bg-gray-200">
+            <div class="progress-fill bg-blue-500" style="width: 75%;"></div>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="card p-4 border-l-4 border-blue-400">
+            <p class="text-gray-500 text-sm">필수 수강 카테고리</p>
+            <p class="text-3xl font-bold text-blue-500">19개</p>
+        </div>
+        <div class="card p-4 border-l-4 border-green-400">
+            <p class="text-gray-500 text-sm">수강 완료 카테고리</p>
+            <p class="text-3xl font-bold text-green-500">11개</p>
+        </div>
+        <div class="card p-4 border-l-4 border-red-400">
+            <p class="text-gray-500 text-sm">미완료 카테고리</p>
+            <p class="text-3xl font-bold text-red-500">8개</p>
+        </div>
+    </section>
+
+    <div class="mb-4 flex space-x-2">
+        <button class="bg-blue-600 text-white px-4 py-1 rounded-md text-sm">전체</button>
+        <button class="bg-gray-200 text-gray-600 px-4 py-1 rounded-md text-sm">완료</button>
+        <button class="bg-gray-200 text-gray-600 px-4 py-1 rounded-md text-sm">미완료</button>
+    </div>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="card p-4 bg-red-50 border border-red-100">
+            <p class="text-red-500 text-xs font-bold mb-2">전공 필수</p>
+            <p class="text-2xl font-bold text-red-500">24/30</p>
+            <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-red-500" style="width: 80%;"></div></div>
+            <p class="text-red-600 text-[10px] mt-1 font-bold">6학점 부족</p>
+        </div>
+        <div class="card p-4 bg-red-50 border border-red-100">
+            <p class="text-red-500 text-xs font-bold mb-2">전공 선택</p>
+            <p class="text-2xl font-bold text-red-500">24/30</p>
+            <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-red-500" style="width: 80%;"></div></div>
+            <p class="text-red-600 text-[10px] mt-1 font-bold">6학점 부족</p>
+        </div>
+        <div class="card p-4 bg-green-50 border border-green-100">
+            <p class="text-green-600 text-xs font-bold mb-2">교양 필수</p>
+            <p class="text-2xl font-bold text-green-600">20/20</p>
+            <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-green-500" style="width: 100%;"></div></div>
+        </div>
+        <div class="card p-4 bg-green-50 border border-green-100">
+            <p class="text-green-600 text-xs font-bold mb-2">교양 선택</p>
+            <p class="text-2xl font-bold text-green-600">20/20</p>
+            <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-green-500" style="width: 100%;"></div></div>
+        </div>
+        </section>
+
+    <section class="bg-orange-50 border border-orange-200 rounded-xl p-6">
+        <h3 class="font-bold text-gray-700">추가 이수 학점</h3>
+        <p class="text-xs text-gray-500 mb-4">전필 전선 교양 등 어떤 카테고리든 자유롭게 채울 수 있는 나머지 학점</p>
+        <p class="text-3xl font-bold text-orange-400">10/20</p>
+        <div class="progress-bg bg-gray-200 mt-2"><div class="progress-fill bg-orange-400" style="width: 50%;"></div></div>
+    </section>
+
+</body>
+</html>

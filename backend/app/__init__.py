@@ -45,6 +45,14 @@ def create_app(config_class=Config) -> Flask:
     def intro_page():
         return render_template('home_overview/home_overview_before.html')
 
+    @app.route('/dashboard')
+    def dashboard_page():
+        return render_template('dashboard/dashboard.html')
+
+    @app.route('/score')
+    def score_page():
+        return render_template('score/score_manager.html')
+
     @app.route('/result')
     def result_page():
         return render_template('result.html')
