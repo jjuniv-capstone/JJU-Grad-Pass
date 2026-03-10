@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}게시판 - JJU Grad-Pass{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/board.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gantari:wght@400;600&family=Galindo&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- ========== 게시판 공통 레이아웃 ========== -->
+
+<!-- 게시판 헤더 (네비게이션) -->
+<header class="board-header">
+  <div class="board-header__inner">
+    <a href="/" class="board-header__logo">JJU Grad-Pass</a>
+    <nav class="board-header__nav">
+      <a href="/" class="board-header__nav-item">홈</a>
+      <a href="#" class="board-header__nav-item">대시보드</a>
+      <a href="#" class="board-header__nav-item">과목추천</a>
+      <a href="#" class="board-header__nav-item">성적관리</a>
+      <a href="#" class="board-header__nav-item">시간표</a>
+      <a href="/board" class="board-header__nav-item board-header__nav-item--active">게시판</a>
+    </nav>
+    <a href="#" class="board-header__logout">로그아웃</a>
+  </div>
+</header>
+
+<!-- 탭 필터 (게시판 카테고리) -->
+<div class="board-tabs-wrap">
+  <div class="board-tabs">
+    <a href="/board/course" class="board-tabs__item {% block tab_course_active %}{% endblock %}">강의평가</a>
+    <a href="/board/community" class="board-tabs__item {% block tab_anonymous_active %}{% endblock %}">익명</a>
+    <a href="/board/community?cat=returning" class="board-tabs__item {% block tab_returning_active %}{% endblock %}">복학생</a>
+    <a href="/board/community?cat=minor" class="board-tabs__item {% block tab_minor_active %}{% endblock %}">부전공</a>
+    <a href="/board/community?cat=double" class="board-tabs__item {% block tab_double_active %}{% endblock %}">복수전공</a>
+  </div>
+</div>
+
+<!-- 본문 영역 -->
+<main class="board-main">
+  {% block board_content %}{% endblock %}
+</main>
+
+<!-- 푸터 -->
+<footer class="board-footer">
+  <p class="board-footer__text">2026 전주대학교 졸업 체크. All rights reserved.</p>
+  <p class="board-footer__text">본 서비스는 전주대학교 학생들의 졸업 요건 관리를 돕기 위한 플랫폼입니다.</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/board.js') }}"></script>
+{% block board_scripts %}{% endblock %}
+{% endblock %}
