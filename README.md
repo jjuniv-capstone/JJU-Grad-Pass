@@ -45,31 +45,63 @@
 ## 프로젝트 구조
 
 ```
-capstone/
+JJU-Grad-Pass/
 ├── backend/                        # Flask 백엔드
 │   ├── app/
-│   │   ├── __init__.py             # 앱 초기화
+│   │   ├── __init__.py             # 앱 팩토리 및 라우트 등록
 │   │   ├── config.py               # 설정
 │   │   ├── routes/
 │   │   │   ├── api.py              # 공통 API
 │   │   │   ├── board.py            # 게시판 라우트
 │   │   │   └── instar.py           # 인스타 연동 API
 │   │   ├── services/
-│   │   │   └── instar_service.py   # 인스타 스크래핑 로직
+│   │   │   ├── instar_service.py   # 인스타 스크래핑 로직
+│   │   │   └── user_service.py     # 사용자 서비스
 │   │   ├── models/
+│   │   │   └── user.py             # 사용자 모델
 │   │   └── utils/
+│   │       └── helpers.py          # 유틸리티 함수
 │   ├── requirements.txt
-│   └── run.py
+│   └── run.py                      # 서버 실행 진입점
 │
 ├── frontend/                       # 프론트엔드
 │   ├── templates/
 │   │   ├── layout.html             # 공통 레이아웃
-│   │   ├── index.html              # 메인 페이지
 │   │   ├── result.html             # 학적정보 조회 결과
-│   │   └── board/                  # 게시판 템플릿
+│   │   ├── home_overview/          # 홈 페이지
+│   │   │   ├── home_overview_before.html  # 로그인 전 메인
+│   │   │   └── home_overview_after.html   # 로그인 후 메인
+│   │   ├── login/                  # 인증 페이지
+│   │   │   ├── login.html          # 로그인
+│   │   │   └── signup.html         # 회원가입
+│   │   ├── dashboard/              # 대시보드
+│   │   │   └── dashboard.html
+│   │   ├── score/                  # 성적 관리
+│   │   │   └── score_manager.html
+│   │   ├── recommend/              # 과목 추천
+│   │   │   └── recommend.html
+│   │   ├── board/                  # 게시판
+│   │   │   ├── board_layout.html
+│   │   │   ├── board_list_community.html
+│   │   │   ├── board_list_course.html
+│   │   │   ├── board_detail.html
+│   │   │   ├── board_detail_community.html
+│   │   │   ├── board_write_community.html
+│   │   │   └── board_write_course.html
+│   │   └── components/             # 공통 컴포넌트
 │   └── static/
 │       ├── css/                    # 스타일시트
-│       └── js/                     # 클라이언트 스크립트
+│       │   ├── reset.css
+│       │   ├── style.css
+│       │   ├── navbar.css
+│       │   ├── login.css
+│       │   └── board.css
+│       ├── js/                     # 클라이언트 스크립트
+│       │   ├── main.js
+│       │   ├── api.js
+│       │   └── board.js
+│       ├── fonts/
+│       └── images/
 │
 ├── chrome-extension/               # Chrome 확장 프로그램
 │   ├── manifest.json               # 확장 프로그램 설정 (Manifest V3)
@@ -77,7 +109,12 @@ capstone/
 │   ├── content.js                  # ISOLATED world 스크립트
 │   └── content_main.js             # MAIN world 스크립트 (XHR 후킹)
 │
-└── docs/                           # 프로젝트 문서
+├── docs/                           # 프로젝트 문서
+│   ├── architecture.drawio         # 아키텍처 다이어그램
+│   └── backend-spec.md             # 백엔드 명세서
+│
+├── LICENSE
+└── README.md
 ```
 
 ---
