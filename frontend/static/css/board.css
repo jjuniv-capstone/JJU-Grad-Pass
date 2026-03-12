@@ -1,124 +1,92 @@
 /**
  * 게시판 전용 스타일시트
- * Figma 디자인 기반 JJU-Grad-Pass 게시판
+ * 대시보드/과목추천 디자인과 통일된 스타일
  */
 
 /* ========== 디자인 토큰 ========== */
 :root {
-  --board-primary: #157ebb;
-  --board-primary-light: #00a1ff;
-  --board-primary-lighter: #60bff6;
-  --board-bg: #f6f6f6;
+  --board-primary: #0487D3;
+  --board-primary-light: #00a0e9;
+  --board-bg: #f8fbff;
   --board-card-bg: #ffffff;
-  --board-border: #c5c5c5;
-  --board-text: #000000;
-  --board-text-secondary: #525252;
-  --board-text-muted: #606060;
-  --board-text-placeholder: #959595;
-  --board-text-placeholder-dark: #a09d9d;
-  --board-link: #0009ff;
-  --board-sidebar-bg: #eff6ff;
-  --board-sidebar-title: #1c398e;
-  --board-sidebar-text: #193cb8;
-  --board-radius-card: 26px;
-  --board-radius-tab: 14px;
-  --board-radius-btn: 24px;
+  --board-border: #d1e9ff;
+  --board-text: #333333;
+  --board-text-secondary: #555555;
+  --board-text-muted: #777777;
+  --board-text-placeholder: #aaaaaa;
+  --board-link: #0487D3;
+  --board-sidebar-bg: #e8f4fd;
+  --board-sidebar-title: #0487D3;
+  --board-sidebar-text: #333333;
+  --board-radius-card: 15px;
+  --board-radius-tab: 25px;
+  --board-radius-btn: 25px;
+  --board-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-/* ========== 게시판 헤더 ========== */
-.board-header {
-  background-color: var(--board-primary);
-  height: 72px;
-  display: flex;
-  align-items: center;
-}
-
-.board-header__inner {
-  max-width: 1440px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.board-header__logo {
-  color: #ffffff;
-  font-size: 24px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.board-header__nav {
-  display: flex;
-  gap: 32px;
-}
-
-.board-header__nav-item {
-  color: #ffffff;
-  font-size: 24px;
-  text-decoration: none;
-}
-
-.board-header__nav-item--active {
-  background-color: var(--board-primary-light);
-  padding: 0 16px;
-  border-radius: 5px;
-}
-
-.board-header__logout {
-  color: var(--board-primary-lighter);
-  font-size: 20px;
-  text-decoration: none;
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: var(--board-bg);
+  margin: 0;
+  padding: 0;
 }
 
 /* ========== 탭 필터 ========== */
 .board-tabs-wrap {
   background-color: var(--board-bg);
-  padding: 24px 0;
+  padding: 16px 0 8px;
+  padding-top: 61px; /* navbar 높이(45px) + 여백 */
 }
 
 .board-tabs {
-  max-width: 1440px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 20px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .board-tabs__item {
-  padding: 12px 24px;
+  padding: 8px 20px;
   border-radius: var(--board-radius-tab);
-  background-color: #f2f2f2;
-  color: var(--board-text-placeholder);
-  font-size: 24px;
+  background-color: #ffffff;
+  color: var(--board-text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
   text-decoration: none;
+  border: 1px solid var(--board-border);
+  transition: all 0.2s;
+}
+
+.board-tabs__item:hover {
+  background-color: #e8f4fd;
+  color: var(--board-primary);
 }
 
 .board-tabs__item--active {
   background-color: var(--board-primary);
   color: #ffffff;
+  border-color: var(--board-primary);
 }
 
 /* ========== 본문 영역 ========== */
 .board-main {
   background-color: var(--board-bg);
-  min-height: calc(100vh - 72px - 200px);
-  padding: 24px;
+  min-height: calc(100vh - 45px - 80px);
+  padding: 20px;
 }
 
 .board-main__inner {
-  max-width: 1440px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 /* 그리드 레이아웃: 본문 + 사이드바 */
 .board-main__grid {
   display: grid;
-  grid-template-columns: 1fr 344px;
-  gap: 24px;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
 }
 
 .board-main__content {
@@ -132,98 +100,118 @@
 /* ========== 커뮤니티 규칙 사이드바 ========== */
 .board-sidebar {
   background-color: var(--board-sidebar-bg);
-  border: 1px solid #f9fafb;
+  border: 1px solid #b8ddf0;
   border-radius: var(--board-radius-card);
-  padding: 24px;
+  padding: 20px;
+  box-shadow: var(--board-shadow);
 }
 
 .board-sidebar__title {
   color: var(--board-sidebar-title);
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
 }
 
 .board-sidebar__text {
   color: var(--board-sidebar-text);
-  font-size: 20px;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.7;
   white-space: pre-line;
 }
 
 /* ========== 게시판 카드 (강의평가) ========== */
 .board-card {
   background-color: var(--board-card-bg);
-  border: 1px solid var(--board-primary);
+  border: 2px solid var(--board-border);
   border-radius: var(--board-radius-card);
-  padding: 24px;
-  margin-bottom: 16px;
+  padding: 20px 25px;
+  margin-bottom: 12px;
+  box-shadow: var(--board-shadow);
+  transition: transform 0.2s;
+}
+
+.board-card:hover {
+  transform: translateY(-2px);
 }
 
 .board-card__title {
-  font-size: 32px;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--board-text);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .board-card__meta {
-  font-size: 24px;
+  font-size: 0.85rem;
   color: var(--board-text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .board-card__link {
   color: var(--board-link);
-  font-size: 24px;
+  font-size: 0.85rem;
+  font-weight: 500;
   text-decoration: none;
+}
+
+.board-card__link:hover {
+  text-decoration: underline;
 }
 
 /* ========== 게시판 카드 (익명/커뮤니티) ========== */
 .board-card-community {
   background-color: var(--board-card-bg);
-  border: 1px solid var(--board-primary);
+  border: 2px solid var(--board-border);
   border-radius: var(--board-radius-card);
-  padding: 24px;
-  margin-bottom: 16px;
+  padding: 20px 25px;
+  margin-bottom: 12px;
+  box-shadow: var(--board-shadow);
+  transition: transform 0.2s;
+}
+
+.board-card-community:hover {
+  transform: translateY(-2px);
 }
 
 .board-card-community__title {
-  font-size: 30px;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--board-text);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-/* Figma: 제목 아래 preview + 댓글수 (댓글수 오른쪽 정렬, #a09d9d) */
 .board-card-community__footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .board-card-community__preview {
   flex: 1;
-  font-size: 24px;
-  color: var(--board-text-placeholder-dark);
+  font-size: 0.85rem;
+  color: var(--board-text-muted);
   margin: 0;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Figma: 댓글 수 (24px, #a09d9d, 오른쪽) */
 .board-card-community__count {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 24px;
-  color: var(--board-text-placeholder-dark);
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--board-text-placeholder);
   flex-shrink: 0;
 }
 
 .board-card-community__icon {
-  color: var(--board-text-placeholder-dark);
+  color: var(--board-text-placeholder);
 }
 
-/* 카드 클릭 링크 (상세로 이동) */
 .board-card-community--link {
   display: block;
   text-decoration: none;
@@ -232,22 +220,24 @@
 }
 
 .board-card-community--link:hover {
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 /* ========== 검색 영역 ========== */
 .board-search {
   background-color: var(--board-card-bg);
   border-radius: var(--board-radius-card);
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--board-shadow);
 }
 
 .board-search__row {
   display: flex;
-  gap: 16px;
+  flex-wrap: nowrap;
+  gap: 12px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .board-search__row:last-child {
@@ -255,82 +245,103 @@
 }
 
 .board-search__input {
-  flex: 1;
-  padding: 16px 20px;
-  border: 1px solid var(--board-border);
-  border-radius: var(--board-radius-card);
-  font-size: 24px;
+  flex: 5;
+  min-width: 0;
+  padding: 10px 16px;
+  border: 1px solid #e1e1e1;
+  border-radius: var(--board-radius-btn);
+  font-size: 0.9rem;
+  font-family: 'Noto Sans KR', sans-serif;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.board-search__input:focus {
+  border-color: var(--board-primary);
+}
+
+.board-search__input--short {
+  flex: 3;
 }
 
 .board-search__input::placeholder {
-  color: var(--board-text-placeholder-dark);
+  color: var(--board-text-placeholder);
 }
 
 .board-search__btn {
-  padding: 16px 32px;
+  padding: 10px 24px;
   background-color: var(--board-primary);
   color: #ffffff;
   border: none;
   border-radius: var(--board-radius-btn);
-  font-size: 32px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: 'Noto Sans KR', sans-serif;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s;
 }
 
-/* ========== 상세 화면 (Figma: 게시판－자세히 알아보기) ========== */
+.board-search__btn:hover {
+  background-color: #0370b0;
+}
+
+/* ========== 상세 화면 ========== */
 .board-detail__search {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .board-detail-card {
-  font-family: 'Galindo', 'Gantari', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   background-color: var(--board-card-bg);
-  border: 2px solid #0056a1;
+  border: 2px solid var(--board-border);
   border-radius: var(--board-radius-card);
-  padding: 40px 56px;
-  position: relative;
+  padding: 30px 35px;
+  box-shadow: var(--board-shadow);
 }
 
-/* 뒤로가기 (Figma: 32px, #157ebb) */
 .board-detail-card__back {
   display: inline-block;
   color: var(--board-primary);
-  font-size: 32px;
+  font-size: 0.9rem;
+  font-weight: 500;
   text-decoration: none;
-  margin-bottom: 24px;
-}
-
-/* 과목명 (Figma: 36px, #157ebb, 상단 강조) */
-.board-detail-card__subject {
-  font-size: 36px;
-  color: var(--board-primary);
   margin-bottom: 20px;
-  font-weight: 400;
 }
 
-/* 메타 정보 (Figma: 32px, #157ebb) */
-.board-detail-card__meta {
-  font-size: 32px;
+.board-detail-card__back:hover {
+  text-decoration: underline;
+}
+
+.board-detail-card__subject {
+  font-size: 1.3rem;
   color: var(--board-primary);
-  margin-bottom: 14px;
-  line-height: 40px;
+  margin-bottom: 16px;
+  font-weight: 700;
 }
 
-/* 상세후기 제목 (Figma: 32px, #000000) */
+.board-detail-card__meta {
+  font-size: 0.9rem;
+  color: var(--board-text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
 .board-detail-card__subtitle {
-  font-size: 32px;
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--board-text);
-  margin: 24px 0 12px;
-  font-weight: 400;
+  margin: 20px 0 10px;
 }
 
-/* 상세후기 본문 (Figma: 24px, #1e1e1e, line-height 40px) */
 .board-detail-card__body {
-  font-size: 24px;
-  color: #1e1e1e;
-  line-height: 40px;
-  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: #444444;
+  line-height: 1.8;
+  margin-bottom: 8px;
 }
 
 .board-detail-card__body:last-child {
@@ -338,31 +349,32 @@
 }
 
 .board-detail-card__body-wrap .board-detail-card__body {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
-/* ========== 댓글 섹션 (Figma: 글 클릭 시 상세 + 댓글) ========== */
+/* ========== 댓글 섹션 ========== */
 .board-detail-comments {
-  margin-top: 48px;
-  padding-top: 32px;
-  border-top: 1px solid var(--board-border);
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e1e1;
 }
 
 .board-detail-comments__title {
-  font-size: 32px;
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--board-text);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .board-detail-comments__list {
   list-style: none;
   padding: 0;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
 }
 
 .board-detail-comment {
-  padding: 16px 0;
-  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .board-detail-comment:last-of-type {
@@ -370,111 +382,145 @@
 }
 
 .board-detail-comment__author {
-  font-size: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--board-text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .board-detail-comment__text {
-  font-size: 24px;
-  color: #1e1e1e;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  color: #444444;
+  line-height: 1.6;
 }
 
 .board-detail-comment-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .board-detail-comment-form__input {
   width: 100%;
-  padding: 16px 20px;
-  border: 1px solid var(--board-border);
-  border-radius: var(--board-radius-card);
-  font-size: 24px;
+  padding: 12px 16px;
+  border: 1px solid #e1e1e1;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-family: 'Noto Sans KR', sans-serif;
   resize: vertical;
-  min-height: 80px;
+  min-height: 70px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.board-detail-comment-form__input:focus {
+  border-color: var(--board-primary);
 }
 
 .board-detail-comment-form__input::placeholder {
-  color: var(--board-text-placeholder-dark);
+  color: var(--board-text-placeholder);
 }
 
 .board-detail-comment-form__btn {
   align-self: flex-end;
-  padding: 12px 32px;
+  padding: 8px 24px;
   background-color: var(--board-primary);
   color: #ffffff;
   border: none;
   border-radius: var(--board-radius-btn);
-  font-size: 24px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: 'Noto Sans KR', sans-serif;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.board-detail-comment-form__btn:hover {
+  background-color: #0370b0;
 }
 
 /* ========== 글쓰기 폼 ========== */
 .board-write {
-  max-width: 945px;
+  max-width: 700px;
   margin: 0 auto;
   background-color: var(--board-card-bg);
-  border-radius: 57px;
-  padding: 48px;
+  border-radius: var(--board-radius-card);
+  padding: 35px;
+  box-shadow: var(--board-shadow);
 }
 
 .board-write__title {
-  font-size: 40px;
+  font-size: 1.4rem;
+  font-weight: 700;
   color: var(--board-text);
-  margin-bottom: 48px;
+  margin-bottom: 30px;
 }
 
 .board-write__field {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .board-write__label {
   display: block;
-  font-size: 28px;
-  color: #494747;
-  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--board-text-secondary);
+  margin-bottom: 6px;
 }
 
 .board-write__input,
 .board-write__select,
 .board-write__textarea {
   width: 100%;
-  padding: 16px 20px;
-  border: 1px solid var(--board-border);
-  border-radius: var(--board-radius-card);
-  font-size: 32px;
+  padding: 10px 16px;
+  border: 1px solid #e1e1e1;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: 'Noto Sans KR', sans-serif;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.board-write__input:focus,
+.board-write__select:focus,
+.board-write__textarea:focus {
+  border-color: var(--board-primary);
 }
 
 .board-write__input::placeholder,
 .board-write__textarea::placeholder {
-  color: var(--board-text-placeholder-dark);
+  color: var(--board-text-placeholder);
 }
 
 .board-write__textarea {
-  min-height: 200px;
+  min-height: 160px;
   resize: vertical;
 }
 
 .board-write__actions {
   display: flex;
-  gap: 24px;
-  margin-top: 48px;
+  gap: 16px;
+  margin-top: 30px;
 }
 
 .board-write__btn {
   flex: 1;
-  padding: 24px;
-  border-radius: var(--board-radius-card);
-  font-size: 32px;
+  padding: 12px;
+  border-radius: var(--board-radius-btn);
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'Noto Sans KR', sans-serif;
   cursor: pointer;
   text-align: center;
   text-decoration: none;
-  border: 1px solid var(--board-border);
+  border: 1px solid #e1e1e1;
   background-color: var(--board-card-bg);
-  color: #494747;
+  color: var(--board-text-secondary);
+  transition: all 0.2s;
+}
+
+.board-write__btn:hover {
+  background-color: #f5f5f5;
 }
 
 .board-write__btn--primary {
@@ -483,21 +529,25 @@
   border-color: var(--board-primary);
 }
 
+.board-write__btn--primary:hover {
+  background-color: #0370b0;
+}
+
 /* 날짜 (목록 카드) */
 .board-card__meta--date {
-  font-size: 20px;
+  font-size: 0.75rem;
   color: var(--board-text-placeholder);
 }
 
 .board-card-community__meta-right {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
 .board-card-community__date {
-  font-size: 20px;
+  font-size: 0.75rem;
   color: var(--board-text-placeholder);
 }
 
@@ -505,12 +555,12 @@
 .board-detail-comment__header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 4px;
 }
 
 .board-detail-comment__date {
-  font-size: 18px;
+  font-size: 0.75rem;
   color: var(--board-text-placeholder);
 }
 
@@ -518,8 +568,8 @@
 .board-write__error {
   display: none;
   color: #d32f2f;
-  font-size: 20px;
-  margin-top: 6px;
+  font-size: 0.8rem;
+  margin-top: 4px;
 }
 
 .board-write__error--visible {
@@ -534,25 +584,26 @@
 
 /* ========== 빈 상태 메시지 ========== */
 .board-empty {
-  padding: 48px 24px;
+  padding: 40px 20px;
   text-align: center;
-  font-size: 24px;
+  font-size: 0.9rem;
   color: var(--board-text-muted);
   background-color: var(--board-card-bg);
   border: 1px solid var(--board-border);
   border-radius: var(--board-radius-card);
 }
 
-/* ========== 푸터 ========== */
-.board-footer {
-  background-color: var(--board-primary);
-  color: #ffffff;
-  text-align: center;
-  padding: 40px 24px;
-}
+/* ========== 반응형 ========== */
+@media (max-width: 768px) {
+  .board-main__grid {
+    grid-template-columns: 1fr;
+  }
 
-.board-footer__text {
-  font-size: 30px;
-  line-height: 1.5;
-  margin: 0;
+  .board-detail-card {
+    padding: 20px;
+  }
+
+  .board-write {
+    padding: 25px 20px;
+  }
 }
