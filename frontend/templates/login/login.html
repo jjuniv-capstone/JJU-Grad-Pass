@@ -13,6 +13,8 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            padding-top: 45px;
+            box-sizing: border-box;
         }
 
         .login-container {
@@ -98,7 +100,7 @@
             margin-bottom: 25px;
         }
 
-        .login-btn {
+        .main-submit-btn {
             width: 100%;
             padding: 15px;
             background-color: #1a83bf;
@@ -122,8 +124,22 @@
             font-weight: 700;
         }
     </style>
+    <link rel="stylesheet" href="../../static/css/navbar.css">
 </head>
 <body>
+<nav class="navbar">
+    <a href="/" class="nav-logo">
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>JJU Grad-Pass</span>
+    </a>
+
+    <div class="nav-menu">
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-house"></i> 홈
+        </a>
+        <a href="/login" class="login-btn">로그인</a>
+    </div>
+</nav>
 
 <div class="login-container">
     <div class="title">
@@ -151,7 +167,7 @@
             <div>학번 찾기 | 비밀번호 찾기</div>
         </div>
 
-        <button type="submit" class="login-btn">LOGIN</button>
+        <button type="submit" class="main-submit-btn">LOGIN</button>
 
         <p class="signup-link">
             계정이 없으신가요? <a href="/signup">회원가입</a>
@@ -163,7 +179,7 @@
 </div>
 
 <script>
-document.querySelector('.login-btn').addEventListener('click', async () => {
+document.querySelector('.main-submit-btn').addEventListener('click', async () => {
     const student_id = document.getElementById('student-id').value.trim();
     const password = document.getElementById('password').value;
 
