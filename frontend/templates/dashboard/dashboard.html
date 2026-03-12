@@ -12,25 +12,22 @@
         .progress-bg { background-color: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 4px; }
     </style>
+    <link rel="stylesheet" href="../../static/css/navbar.css">
 </head>
 <body class="p-4 md:p-8">
+    <nav class="navbar">
+        <a href="/" class="nav-logo">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>JJU Grad-Pass</span>
+        </a>
 
-    <nav class="bg-[#0078d4] text-white p-3 flex justify-between items-center rounded-t-lg mb-6">
-        <div class="flex items-center space-x-2">
-            <i class="fas fa-graduation-cap"></i>
-            <span class="font-bold">JJU Grad-Pass</span>
+        <div class="nav-menu">
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-house"></i> 홈
+            </a>
+            <a href="/login" class="login-btn">로그인</a>
         </div>
-        <div class="hidden md:flex space-x-6 text-sm">
-            <a href="#"><i class="fas fa-home"></i> 홈</a>
-            <a href="#" class="bg-[#005a9e] px-2 py-1 rounded"><i class="fas fa-th-large"></i> 대시보드</a>
-            <a href="#"><i class="fas fa-book"></i> 과목추천</a>
-            <a href="#"><i class="fas fa-chart-line"></i> 성적관리</a>
-            <a href="#"><i class="fas fa-calendar-alt"></i> 시간표</a>
-            <a href="#"><i class="fas fa-comments"></i> 게시판</a>
-        </div>
-        <div class="text-xs text-blue-200">로그아웃</div>
     </nav>
-
     <section class="card p-6 mb-6">
         <h2 class="text-blue-600 font-bold mb-4 flex items-center">
             <i class="fas fa-chart-bar mr-2"></i> 졸업 진행도
