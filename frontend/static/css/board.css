@@ -304,16 +304,24 @@ body {
 }
 
 .board-detail-card__back {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background-color: #e8f4fd;
   color: var(--board-primary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   text-decoration: none;
+  border: 1px solid var(--board-border);
+  border-radius: var(--board-radius-btn);
   margin-bottom: 20px;
+  transition: all 0.2s;
 }
 
 .board-detail-card__back:hover {
-  text-decoration: underline;
+  background-color: var(--board-primary);
+  color: #ffffff;
 }
 
 .board-detail-card__subject {
