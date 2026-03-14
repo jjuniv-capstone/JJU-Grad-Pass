@@ -23,83 +23,240 @@
 
         <!-- 상단바 -->
         <div class="nav-menu">
-            <a href="/home" class="nav-item active"><i class="fa-solid fa-house"></i> 홈</a>
-            <a href="/dashboard" class="nav-item"><i class="fa-solid fa-table-cells-large"></i> 대시보드</a>
+            <a href="/home" class="nav-item"><i class="fa-solid fa-house"></i> 홈</a>
+            <a href="/dashboard" class="nav-item active"><i class="fa-solid fa-table-cells-large"></i> 대시보드</a>
             <a href="/recommend" class="nav-item"><i class="fa-solid fa-book-open"></i> 과목추천</a>
             <a href="/score" class="nav-item"><i class="fa-solid fa-graduation-cap"></i> 성적관리</a>
-            <a href="#" class="nav-item"><i class="fa-solid fa-calendar-days"></i> 시간표</a>
+            <a href="/timetable" class="nav-item"><i class="fa-solid fa-calendar-days"></i> 시간표</a>
             <a href="/board" class="nav-item"><i class="fa-solid fa-comment-dots"></i> 게시판</a>
             <a href="/" class="nav-item logout"><i class="fa-solid fa-right-from-bracket"></i> 로그아웃</a>
         </div>
     </nav>
-    <main style="padding-top: 50px;"> <div class="dashboard-grid"></div></main>
-    <section class="card p-6 mb-6">
+    <main style="padding-top: 50px;">
+    <div class="max-w-4xl mx-auto">
+
+    <!-- 졸업 진행도 -->
+    <section class="card p-6 mb-6" id="graduation-section">
         <h2 class="text-blue-600 font-bold mb-4 flex items-center">
             <i class="fas fa-chart-bar mr-2"></i> 졸업 진행도
         </h2>
         <div class="text-sm space-y-1 mb-4">
-            <p>현재 학년과 학기 : <span class="text-blue-500 font-bold">4학년 1학기</span></p>
-            <p>남은 학기 : <span class="text-blue-500 font-bold">1학기</span></p>
-            <p>남은 학점 : <span class="text-blue-500 font-bold">32학점</span></p>
+            <p>현재 학년과 학기 : <span id="current-year" class="text-blue-500 font-bold">-</span></p>
+            <p>남은 학기 : <span id="remaining-semester" class="text-blue-500 font-bold">-</span></p>
+            <p>남은 학점 : <span id="remaining-credits" class="text-blue-500 font-bold">-</span></p>
         </div>
-        <div class="mb-2 text-xl font-bold">총 이수 학점 <span class="text-2xl">98 / 130</span></div>
+        <div class="mb-2 text-xl font-bold">총 이수 학점 <span id="credit-summary" class="text-2xl">- / -</span></div>
         <div class="progress-bg w-full bg-gray-200">
-            <div class="progress-fill bg-blue-500" style="width: 75%;"></div>
+            <div id="credit-progress" class="progress-fill bg-blue-500" style="width: 0%;"></div>
         </div>
     </section>
 
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <!-- 카테고리 요약 카드 -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="summary-cards">
         <div class="card p-4 border-l-4 border-blue-400">
             <p class="text-gray-500 text-sm">필수 수강 카테고리</p>
-            <p class="text-3xl font-bold text-blue-500">19개</p>
+            <p id="total-count" class="text-3xl font-bold text-blue-500">-</p>
         </div>
         <div class="card p-4 border-l-4 border-green-400">
             <p class="text-gray-500 text-sm">수강 완료 카테고리</p>
-            <p class="text-3xl font-bold text-green-500">11개</p>
+            <p id="passed-count" class="text-3xl font-bold text-green-500">-</p>
         </div>
         <div class="card p-4 border-l-4 border-red-400">
             <p class="text-gray-500 text-sm">미완료 카테고리</p>
-            <p class="text-3xl font-bold text-red-500">8개</p>
+            <p id="failed-count" class="text-3xl font-bold text-red-500">-</p>
         </div>
     </section>
 
-    <div class="mb-4 flex space-x-2">
-        <button class="bg-blue-600 text-white px-4 py-1 rounded-md text-sm">전체</button>
-        <button class="bg-gray-200 text-gray-600 px-4 py-1 rounded-md text-sm">완료</button>
-        <button class="bg-gray-200 text-gray-600 px-4 py-1 rounded-md text-sm">미완료</button>
+    <!-- 필터 버튼 -->
+    <div class="mb-4 flex space-x-2" id="filter-buttons">
+        <button data-filter="all" class="bg-blue-600 text-white px-4 py-1 rounded-md text-sm">전체</button>
+        <button data-filter="passed" class="bg-gray-200 text-gray-600 px-4 py-1 rounded-md text-sm">완료</button>
+        <button data-filter="failed" class="bg-gray-200 text-gray-600 px-4 py-1 rounded-md text-sm">미완료</button>
     </div>
 
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="card p-4 bg-red-50 border border-red-100">
-            <p class="text-red-500 text-xs font-bold mb-2">전공 필수</p>
-            <p class="text-2xl font-bold text-red-500">24/30</p>
-            <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-red-500" style="width: 80%;"></div></div>
-            <p class="text-red-600 text-[10px] mt-1 font-bold">6학점 부족</p>
-        </div>
-        <div class="card p-4 bg-red-50 border border-red-100">
-            <p class="text-red-500 text-xs font-bold mb-2">전공 선택</p>
-            <p class="text-2xl font-bold text-red-500">24/30</p>
-            <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-red-500" style="width: 80%;"></div></div>
-            <p class="text-red-600 text-[10px] mt-1 font-bold">6학점 부족</p>
-        </div>
-        <div class="card p-4 bg-green-50 border border-green-100">
-            <p class="text-green-600 text-xs font-bold mb-2">교양 필수</p>
-            <p class="text-2xl font-bold text-green-600">20/20</p>
-            <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-green-500" style="width: 100%;"></div></div>
-        </div>
-        <div class="card p-4 bg-green-50 border border-green-100">
-            <p class="text-green-600 text-xs font-bold mb-2">교양 선택</p>
-            <p class="text-2xl font-bold text-green-600">20/20</p>
-            <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-green-500" style="width: 100%;"></div></div>
-        </div>
-        </section>
+    <!-- 이수항목별 카드 -->
+    <section id="requirement-cards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    </section>
 
-    <section class="bg-orange-50 border border-orange-200 rounded-xl p-6">
+    <!-- 추가 이수 학점 -->
+    <section class="bg-orange-50 border border-orange-200 rounded-xl p-6" id="extra-credits-section">
         <h3 class="font-bold text-gray-700">추가 이수 학점</h3>
         <p class="text-xs text-gray-500 mb-4">전필 전선 교양 등 어떤 카테고리든 자유롭게 채울 수 있는 나머지 학점</p>
-        <p class="text-3xl font-bold text-orange-400">10/20</p>
-        <div class="progress-bg bg-gray-200 mt-2"><div class="progress-fill bg-orange-400" style="width: 50%;"></div></div>
+        <p id="extra-credits" class="text-3xl font-bold text-orange-400">-</p>
+        <div class="progress-bg bg-gray-200 mt-2"><div id="extra-progress" class="progress-fill bg-orange-400" style="width: 0%;"></div></div>
     </section>
+
+    <!-- 데이터 없음 안내 (기본 숨김) -->
+    <section id="no-data-message" class="card p-8 text-center hidden">
+        <i class="fas fa-exclamation-circle text-gray-400 text-4xl mb-4"></i>
+        <p class="text-gray-500 text-lg font-bold">데이터를 불러올 수 없습니다.</p>
+        <p class="text-gray-400 text-sm mt-2">인스타 연동 후 다시 시도해주세요.</p>
+    </section>
+
+    </div><!-- max-w-4xl -->
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    // 데이터가 채워지는 섹션들
+    const mainSections = [
+        document.getElementById('graduation-section'),
+        document.getElementById('summary-cards'),
+        document.getElementById('filter-buttons'),
+        document.getElementById('requirement-cards'),
+        document.getElementById('extra-credits-section')
+    ];
+    const noDataMsg = document.getElementById('no-data-message');
+
+    let allRequirements = []; // 필터용 전역 저장
+
+    try {
+        const res = await fetch('/api/instar/result');
+        if (!res.ok) throw new Error('API 오류');
+        const json = await res.json();
+
+        if (!json.success || !json.data) {
+            showNoData();
+            return;
+        }
+
+        const { member, graduation, requirements } = json.data;
+        allRequirements = requirements || [];
+
+        // ── 졸업 진행도 ──
+        const hakjumSum = parseInt(graduation.hakjum_sum) || 0;
+        const hakjumGrad = parseInt(graduation.hakjum_grad) || 0;
+        const hakjumNeed = parseInt(graduation.hakjum_need) || 0;
+        const hakjYear = member.HAKJ_YEAR || '-';
+        const sugangSum = parseInt(graduation.sugang_sum) || 0;
+
+        document.getElementById('current-year').textContent = hakjYear + '학년';
+        // 수강중 학점 포함한 총 학점
+        const totalEarned = hakjumSum + sugangSum;
+        const needCredits = hakjumGrad - totalEarned;
+        document.getElementById('remaining-credits').textContent = (needCredits > 0 ? needCredits : 0) + '학점';
+
+        // 남은 학기: 8학기 기준 - 현재까지 학기
+        const totalSemesters = 8;
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const isSecondSemester = currentMonth >= 8;
+        const currentSemester = ((parseInt(hakjYear) - 1) * 2) + (isSecondSemester ? 2 : 1);
+        const remainingSemester = Math.max(totalSemesters - currentSemester, 0);
+        document.getElementById('remaining-semester').textContent = remainingSemester + '학기';
+
+        document.getElementById('credit-summary').textContent = totalEarned + ' / ' + hakjumGrad + ' (수강중 ' + sugangSum + ')';
+        const progressPercent = hakjumGrad > 0 ? Math.min(Math.round((totalEarned / hakjumGrad) * 100), 100) : 0;
+        document.getElementById('credit-progress').style.width = progressPercent + '%';
+
+        // ── 카테고리 요약 ──
+        const totalCount = allRequirements.length;
+        const passedCount = allRequirements.filter(r => r.passed === 'Y').length;
+        const failedCount = totalCount - passedCount;
+
+        document.getElementById('total-count').textContent = totalCount + '개';
+        document.getElementById('passed-count').textContent = passedCount + '개';
+        document.getElementById('failed-count').textContent = failedCount + '개';
+
+        // ── 이수항목별 카드 렌더링 ──
+        renderCards(allRequirements);
+
+        // ── 추가 이수 학점 ──
+        // 졸업기준 - 이수항목 기준합 = 자유롭게 채울 학점
+        // 취득학점 - 각 항목별 min(result, standard) 합 = 추가이수 취득분
+        const standardSum = allRequirements
+            .filter(r => r.unit === '학점')
+            .reduce((sum, r) => sum + (parseInt(r.standard) || 0), 0);
+        const usedForReqs = allRequirements
+            .filter(r => r.unit === '학점')
+            .reduce((sum, r) => {
+                const result = parseInt(r.result) || 0;
+                const standard = parseInt(r.standard) || 0;
+                return sum + Math.min(result, standard);
+            }, 0);
+        const extraNeeded = Math.max(hakjumGrad - standardSum, 0);
+        const extraEarned = Math.max(totalEarned - usedForReqs, 0);
+
+        if (extraNeeded > 0) {
+            document.getElementById('extra-credits').textContent = extraEarned + '/' + extraNeeded;
+            const extraPercent = Math.min(Math.round((extraEarned / extraNeeded) * 100), 100);
+            document.getElementById('extra-progress').style.width = extraPercent + '%';
+        } else {
+            document.getElementById('extra-credits').textContent = '해당 없음';
+            document.getElementById('extra-progress').style.width = '0%';
+        }
+
+    } catch (err) {
+        console.error('대시보드 데이터 로드 실패:', err);
+        showNoData();
+    }
+
+    // ── 필터 버튼 ──
+    document.querySelectorAll('#filter-buttons button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            // 버튼 스타일 토글
+            document.querySelectorAll('#filter-buttons button').forEach(b => {
+                b.className = 'bg-gray-200 text-gray-600 px-4 py-1 rounded-md text-sm';
+            });
+            btn.className = 'bg-blue-600 text-white px-4 py-1 rounded-md text-sm';
+
+            const filter = btn.dataset.filter;
+            let filtered;
+            if (filter === 'passed') {
+                filtered = allRequirements.filter(r => r.passed === 'Y');
+            } else if (filter === 'failed') {
+                filtered = allRequirements.filter(r => r.passed !== 'Y');
+            } else {
+                filtered = allRequirements;
+            }
+            renderCards(filtered);
+        });
+    });
+
+    function renderCards(items) {
+        const container = document.getElementById('requirement-cards');
+        if (items.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 text-sm col-span-3 text-center py-8">해당하는 항목이 없습니다.</p>';
+            return;
+        }
+        container.innerHTML = items.map(req => {
+            const isPassed = req.passed === 'Y';
+            const result = parseInt(req.result) || 0;
+            const standard = parseInt(req.standard) || 0;
+            const percent = standard > 0 ? Math.min(Math.round((result / standard) * 100), 100) : 0;
+            const unit = req.unit || '';
+
+            if (isPassed) {
+                return `
+                <div class="card p-4 bg-green-50 border border-green-100" data-status="passed">
+                    <p class="text-green-600 text-xs font-bold mb-2">${escapeHtml(req.category)} - ${escapeHtml(req.item_name)}</p>
+                    <p class="text-2xl font-bold text-green-600">${result}/${standard}</p>
+                    <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-green-500" style="width: ${percent}%;"></div></div>
+                </div>`;
+            } else {
+                const shortage = standard - result;
+                return `
+                <div class="card p-4 bg-red-50 border border-red-100" data-status="failed">
+                    <p class="text-red-500 text-xs font-bold mb-2">${escapeHtml(req.category)} - ${escapeHtml(req.item_name)}</p>
+                    <p class="text-2xl font-bold text-red-500">${result}/${standard}</p>
+                    <div class="progress-bg bg-gray-300 mt-2"><div class="progress-fill bg-red-500" style="width: ${percent}%;"></div></div>
+                    <p class="text-red-600 text-[10px] mt-1 font-bold">${shortage}${unit} 부족</p>
+                </div>`;
+            }
+        }).join('');
+    }
+
+    function showNoData() {
+        mainSections.forEach(el => { if (el) el.classList.add('hidden'); });
+        noDataMsg.classList.remove('hidden');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+});
+</script>
 
 </body>
 </html>

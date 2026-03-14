@@ -144,7 +144,7 @@
         <a href="/dashboard" class="nav-item"><i class="fa-solid fa-table-cells-large"></i> 대시보드</a>
         <a href="/recommend" class="nav-item active"><i class="fa-solid fa-book-open"></i> 과목추천</a>
         <a href="/score" class="nav-item"><i class="fa-solid fa-graduation-cap"></i> 성적관리</a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-calendar-days"></i> 시간표</a>
+        <a href="/timetable" class="nav-item"><i class="fa-solid fa-calendar-days"></i> 시간표</a>
         <a href="/board" class="nav-item"><i class="fa-solid fa-comment-dots"></i> 게시판</a>
         <a href="/" class="nav-item logout"><i class="fa-solid fa-right-from-bracket"></i> 로그아웃</a>
     </div>
@@ -179,6 +179,11 @@
 </div>
 
 <script>
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 let allCourses = [];
 let takenCodes = new Set();
 let unfulfilledCategories = new Set();
@@ -204,10 +209,15 @@ async function fetchData() {
         }
 
         // 미충족 이수구분
+        const unfulfilledDetails = [];
         if (requirements) {
             for (const req of requirements) {
                 if (req.passed !== "Y") {
                     unfulfilledCategories.add(req.category);
+                    const standard = parseInt(req.standard) || 0;
+                    const result_val = parseInt(req.result) || 0;
+                    const shortage = standard - result_val;
+                    unfulfilledDetails.push(`${req.item_name} ${shortage}${req.unit} 부족`);
                 }
             }
         }
@@ -268,8 +278,8 @@ async function fetchData() {
         const summaryBox = document.getElementById('summaryBox');
         summaryBox.innerHTML = `
             <strong>수강 완료:</strong> ${takenCodes.size}과목 |
-            <strong>미충족 이수구분:</strong> ${unfulfilledCategories.size > 0 ? [...unfulfilledCategories].join(", ") : "없음"} |
-            <strong>추천 과목:</strong> ${essentialCount}개 (필수)
+            <strong>추천 과목:</strong> ${essentialCount}개 (필수)<br>
+            <strong>미충족 항목:</strong> ${unfulfilledDetails.length > 0 ? unfulfilledDetails.map(d => escapeHtml(d)).join(', ') : "없음 (졸업요건 충족!)"}
         `;
         summaryBox.hidden = false;
 
@@ -312,21 +322,21 @@ function renderCourses(courses) {
 
         card.innerHTML = `
             <div class="course-top">
-                <h3>${course.name}</h3>
+                <h3>${escapeHtml(course.name)}</h3>
                 <div class="tags">
-                    <span class="tag ${statusClass}">${course.status}</span>
-                    <span class="tag category">${course.category}</span>
+                    <span class="tag ${statusClass}">${escapeHtml(course.status)}</span>
+                    <span class="tag category">${escapeHtml(course.category)}</span>
                 </div>
             </div>
             <div class="course-details">
-                <span>${course.code}</span>
-                <span>${course.credit}학점</span>
-                <span>${course.professor}</span>
-                <span>${course.schedule}</span>
-                <span>${course.enrolled}/${course.capacity}명</span>
+                <span>${escapeHtml(course.code)}</span>
+                <span>${escapeHtml(course.credit)}학점</span>
+                <span>${escapeHtml(course.professor)}</span>
+                <span>${escapeHtml(course.schedule)}</span>
+                <span>${escapeHtml(course.enrolled)}/${escapeHtml(course.capacity)}명</span>
             </div>
             <div class="recommend-reason">
-                추천 이유: ${course.reason}
+                추천 이유: ${escapeHtml(course.reason)}
             </div>
         `;
         listContainer.appendChild(card);

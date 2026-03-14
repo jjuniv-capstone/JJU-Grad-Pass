@@ -24,11 +24,11 @@
 
         <!-- 상단바 -->
         <div class="nav-menu">
-            <a href="/home" class="nav-item active"><i class="fa-solid fa-house"></i> 홈</a>
+            <a href="/home" class="nav-item"><i class="fa-solid fa-house"></i> 홈</a>
             <a href="/dashboard" class="nav-item"><i class="fa-solid fa-table-cells-large"></i> 대시보드</a>
             <a href="/recommend" class="nav-item"><i class="fa-solid fa-book-open"></i> 과목추천</a>
-            <a href="/score" class="nav-item"><i class="fa-solid fa-graduation-cap"></i> 성적관리</a>
-            <a href="#" class="nav-item"><i class="fa-solid fa-calendar-days"></i> 시간표</a>
+            <a href="/score" class="nav-item active"><i class="fa-solid fa-graduation-cap"></i> 성적관리</a>
+            <a href="/timetable" class="nav-item"><i class="fa-solid fa-calendar-days"></i> 시간표</a>
             <a href="/board" class="nav-item"><i class="fa-solid fa-comment-dots"></i> 게시판</a>
             <a href="/" class="nav-item logout"><i class="fa-solid fa-right-from-bracket"></i> 로그아웃</a>
         </div>
@@ -132,7 +132,12 @@
              * * 사용자가 rSem을 바꿀 때 결과가 바뀌게 하기 위해 
              * '이번 학기'에 들어야 할 현실적인 학점(최대 18학점)을 고려한 계산을 노출합니다.
              */
-            const result = neededPoints / remainingCredits;
+            let result = 0;
+            if (remainingCredits > 0) {
+                result = neededPoints / remainingCredits;
+            } else {
+                result = 0; // 이미 졸업학점 충족
+            }
 
             // 4. 화면 업데이트
             semDisplay.innerText = rSem;
@@ -159,8 +164,63 @@
             input.addEventListener('input', updateSimulation);
         });
 
-        // 초기 실행
-        updateSimulation();
+        // API 데이터로 초기값 설정
+        (async function loadInstarData() {
+            try {
+                const res = await fetch('/api/instar/result');
+                const json = await res.json();
+                if (!json.success || !json.data) return;
+
+                const { graduation, grades } = json.data;
+
+                // 현재 이수 학점 (수강중 포함)
+                if (graduation && graduation.hakjum_sum) {
+                    const sugangSum = parseFloat(graduation.sugang_sum) || 0;
+                    inputs.curCred.value = parseFloat(graduation.hakjum_sum) + sugangSum;
+                }
+
+                // 졸업 기준 학점
+                if (graduation && graduation.hakjum_grad) {
+                    inputs.tarCred.value = parseFloat(graduation.hakjum_grad);
+                }
+
+                // 현재 가중 평균 평점 계산 (P/F 과목 제외)
+                if (grades && grades.length > 0) {
+                    let totalPoints = 0;
+                    let totalCredits = 0;
+                    grades.forEach(g => {
+                        const credits = parseFloat(g.credits) || 0;
+                        const gpa = parseFloat(g.gpa) || 0;
+                        if (gpa > 0 && credits > 0) {
+                            totalPoints += gpa * credits;
+                            totalCredits += credits;
+                        }
+                    });
+                    if (totalCredits > 0) {
+                        inputs.curGPA.value = (totalPoints / totalCredits).toFixed(2);
+                    }
+                }
+
+                // 남은 학기 수 계산 (이수한 학기 + 현재 학기 포함)
+                if (grades && grades.length > 0) {
+                    const semesters = new Set();
+                    grades.forEach(g => {
+                        if (g.year && g.semester) {
+                            semesters.add(g.year + '-' + g.semester);
+                        }
+                    });
+                    const completedSem = semesters.size + 1; // 현재 학기 포함
+                    const remaining = Math.max(1, 8 - completedSem);
+                    inputs.remSem.value = remaining;
+                }
+            } catch (e) {
+                // API 실패 시 기본값 유지
+                console.warn('인스타 API 호출 실패, 기본값 사용:', e);
+            }
+
+            // 데이터 반영 후 시뮬레이션 실행
+            updateSimulation();
+        })();
     </script>
 </body>
 </html>
