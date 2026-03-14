@@ -158,6 +158,14 @@
 
     <div id="summaryBox" class="summary-box" hidden></div>
 
+    <!-- 졸업 로드맵 -->
+    <div id="roadmapSection" hidden>
+        <h2 style="font-size:1.3rem;color:var(--primary-blue);margin-bottom:15px;"><i class="fa-solid fa-route"></i> 졸업 로드맵</h2>
+        <div id="roadmapInfo" style="background:#fff;border:2px solid #d1e9ff;border-radius:15px;padding:15px 20px;margin-bottom:15px;font-size:0.85rem;color:#555;"></div>
+        <div id="roadmapCards" style="display:flex;gap:15px;overflow-x:auto;padding-bottom:10px;margin-bottom:25px;"></div>
+        <div id="roadmapWarning" style="background:#fff0f0;border:1px solid #ffcccc;border-radius:12px;padding:12px 18px;margin-bottom:20px;color:#cc0000;font-size:0.85rem;font-weight:700;display:none;"></div>
+    </div>
+
     <div class="search-container">
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -283,6 +291,9 @@ async function fetchData() {
         `;
         summaryBox.hidden = false;
 
+        // 졸업 로드맵 생성
+        buildRoadmap(result.data);
+
         applyFilters();
     } catch (error) {
         document.getElementById('courseList').innerHTML =
@@ -345,6 +356,202 @@ function renderCourses(courses) {
 
 document.getElementById('categoryFilter').addEventListener('change', applyFilters);
 document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+function buildRoadmap(data) {
+    const { member, graduation, requirements, grades } = data;
+    const section = document.getElementById('roadmapSection');
+    const infoEl = document.getElementById('roadmapInfo');
+    const cardsEl = document.getElementById('roadmapCards');
+    const warningEl = document.getElementById('roadmapWarning');
+
+    if (!graduation || !requirements) return;
+
+    // 1. 직전학기 평점 계산 → 최대학점 결정
+    let lastGpa = 0;
+    let maxCredits = 18;
+    if (grades && grades.length > 0) {
+        // 가장 최근 학기 찾기
+        let lastYear = 0, lastSem = 0;
+        grades.forEach(g => {
+            const y = parseInt(g.year) || 0;
+            const s = parseInt(g.semester) || 0;
+            if (y > lastYear || (y === lastYear && s > lastSem)) {
+                lastYear = y;
+                lastSem = s;
+            }
+        });
+        // 직전학기 성적 평균 (P/F 제외)
+        let totalPts = 0, totalCr = 0;
+        grades.filter(g => parseInt(g.year) === lastYear && parseInt(g.semester) === lastSem).forEach(g => {
+            const cr = parseFloat(g.credits) || 0;
+            const gpa = parseFloat(g.gpa) || 0;
+            if (gpa > 0 && cr > 0) { totalPts += gpa * cr; totalCr += cr; }
+        });
+        lastGpa = totalCr > 0 ? totalPts / totalCr : 0;
+
+        if (lastGpa < 1.5) maxCredits = 15;
+        else if (lastGpa < 3.0) maxCredits = 18;
+        else maxCredits = 19;
+    }
+
+    // 2. 남은 학기 계산
+    const hakjYear = parseInt(member.HAKJ_YEAR) || 1;
+    const now = new Date();
+    const curMonth = now.getMonth() + 1;
+    const isSecond = curMonth >= 8;
+    const currentSemNum = (hakjYear - 1) * 2 + (isSecond ? 2 : 1);
+    const remainingSem = Math.max(0, 8 - currentSemNum);
+
+    // 3. 학점 계산
+    const hakjumSum = parseInt(graduation.hakjum_sum) || 0;
+    const hakjumGrad = parseInt(graduation.hakjum_grad) || 0;
+    const sugangSum = parseInt(graduation.sugang_sum) || 0;
+    const totalEarned = hakjumSum + sugangSum;
+    const totalNeeded = Math.max(0, hakjumGrad - totalEarned);
+
+    // 4. 미충족 항목 추출 + 우선순위 정렬
+    const priorityOrder = ['전필', '전선', '기초', '심화', '진로지도', '채플', '기독교', '인성', '의사소통', '외국어', '소프트웨어', '인간과삶', '사회와경제', '과학과생명', '문화와예술', '학문융합', '사회봉사', '자유'];
+    const unfulfilled = [];
+    let hasThesis = false;
+
+    requirements.forEach(req => {
+        if (req.passed === 'Y') return;
+        const std = parseInt(req.standard) || 0;
+        const res = parseInt(req.result) || 0;
+        const shortage = std - res;
+        if (shortage <= 0 && req.unit === '학점') return;
+
+        if (req.item_name === '논문') {
+            hasThesis = true;
+            return;
+        }
+
+        const priority = priorityOrder.indexOf(req.item_name);
+        unfulfilled.push({
+            name: req.item_name,
+            category: req.category,
+            shortage: shortage,
+            unit: req.unit,
+            priority: priority >= 0 ? priority : 99,
+        });
+    });
+
+    unfulfilled.sort((a, b) => a.priority - b.priority);
+
+    // 5. 자유선택 학점 계산
+    const freeNeeded = Math.max(0, totalNeeded - unfulfilled.reduce((s, u) => s + (u.unit === '학점' ? u.shortage : 0), 0));
+    if (freeNeeded > 0) {
+        unfulfilled.push({ name: '자유선택', category: '기타', shortage: freeNeeded, unit: '학점', priority: 98 });
+    }
+
+    // 6. 졸업 충족 여부 먼저 체크
+    section.hidden = false;
+    infoEl.innerHTML = `<strong>직전학기 평점:</strong> ${lastGpa.toFixed(2)} | <strong>학기당 최대:</strong> ${maxCredits}학점 | <strong>남은 학기:</strong> ${remainingSem}학기 | <strong>남은 학점:</strong> ${totalNeeded}학점`;
+
+    if (unfulfilled.length === 0 && !hasThesis && totalNeeded <= 0) {
+        cardsEl.innerHTML = '<div style="background:#d4edda;border:2px solid #28a745;border-radius:15px;padding:30px;text-align:center;width:100%;"><span style="font-size:2rem;">&#127891;</span><p style="font-size:1.1rem;font-weight:700;color:#28a745;margin:10px 0 0;">졸업요건을 모두 충족했습니다!</p></div>';
+        return;
+    }
+
+    if (remainingSem <= 0) {
+        warningEl.style.display = 'block';
+        warningEl.textContent = '남은 학기가 없습니다. 초과학기 또는 계절학기를 고려하세요.';
+        return;
+    }
+
+    // 7. 미충족 항목 복사 (배분용)
+    const items = unfulfilled.map(u => ({ ...u }));
+    const semesters = [];
+
+    for (let i = 0; i < remainingSem; i++) {
+        let remaining = maxCredits;
+        const semLabel = getSemesterLabel(hakjYear, isSecond, i + 1);
+        const semItems = [];
+
+        for (const item of items) {
+            if (item.unit !== '학점' || item.shortage <= 0) continue;
+            let assign = 0;
+            if (item.name === '사회봉사') {
+                assign = Math.min(item.shortage, 1);
+            } else {
+                assign = Math.min(item.shortage, remaining);
+                if (assign >= 3) assign = Math.floor(assign / 3) * 3;
+            }
+            if (assign > remaining) assign = remaining;
+            if (assign <= 0) continue;
+
+            item.shortage -= assign;
+            remaining -= assign;
+            semItems.push({ name: item.name, category: item.category, credits: assign });
+
+            if (remaining <= 0) break;
+        }
+
+        // 횟수 단위 항목 (채플 횟수 등)
+        for (const item of items) {
+            if (item.unit === '학점' || item.shortage <= 0) continue;
+            if (item.name === '논문') continue; // 논문은 별도 처리
+            const assign = Math.min(item.shortage, 2);
+            item.shortage -= assign;
+            semItems.push({ name: item.name, category: item.category, credits: assign + item.unit });
+        }
+
+        // 마지막 학기에 논문 배치
+        if (i === remainingSem - 1 && hasThesis) {
+            semItems.push({ name: '논문', category: '전공', credits: '이수' });
+        }
+
+        const totalCredits = semItems.reduce((s, si) => s + (typeof si.credits === 'number' ? si.credits : 0), 0);
+        semesters.push({ label: semLabel, items: semItems, total: totalCredits });
+    }
+
+    // 8. 렌더링 + 경고 체크
+    if (totalNeeded > remainingSem * maxCredits) {
+        warningEl.style.display = 'block';
+        warningEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 남은 학기(${remainingSem}) × 최대학점(${maxCredits}) = ${remainingSem * maxCredits}학점으로 부족학점(${totalNeeded})을 채울 수 없습니다. 계절학기 또는 초과학기를 고려하세요.`;
+    }
+
+    const colorMap = { '전공': '#dbeafe', '교양': '#d1fae5', '기타': '#fef3c7' };
+    const textColorMap = { '전공': '#1e40af', '교양': '#065f46', '기타': '#92400e' };
+
+    cardsEl.innerHTML = semesters.map((sem, idx) => {
+        const isLast = idx === semesters.length - 1;
+        const itemsHtml = sem.items.length > 0
+            ? sem.items.map(si => {
+                const bg = colorMap[si.category] || '#f0f0f0';
+                const tc = textColorMap[si.category] || '#333';
+                const creditLabel = typeof si.credits === 'number' ? si.credits + '학점' : si.credits;
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:${bg};border-radius:8px;margin-bottom:4px;font-size:0.8rem;color:${tc};font-weight:600;"><span>${escapeHtml(si.name)}</span><span>${escapeHtml(creditLabel)}</span></div>`;
+            }).join('')
+            : '<p style="color:#aaa;font-size:0.8rem;text-align:center;">추가 이수 없음</p>';
+
+        return `
+            <div style="min-width:200px;max-width:220px;background:#fff;border:2px solid ${isLast ? '#28a745' : '#d1e9ff'};border-radius:15px;padding:18px;flex-shrink:0;">
+                <div style="text-align:center;margin-bottom:12px;">
+                    <span style="font-size:0.75rem;font-weight:700;color:#fff;background:${isLast ? '#28a745' : 'var(--primary-blue)'};padding:3px 12px;border-radius:20px;">${escapeHtml(sem.label)}</span>
+                </div>
+                ${itemsHtml}
+                <div style="border-top:1px solid #eee;margin-top:10px;padding-top:8px;text-align:center;font-size:0.85rem;font-weight:700;color:#333;">
+                    합계 ${sem.total}학점 ${isLast ? '→ 졸업' : ''}
+                </div>
+            </div>
+        `;
+    }).join('<div style="display:flex;align-items:center;font-size:1.5rem;color:#ccc;flex-shrink:0;">→</div>');
+}
+
+function getSemesterLabel(curYear, isSecond, offset) {
+    let year = curYear;
+    let sem = isSecond ? 2 : 1;
+    for (let i = 0; i < offset; i++) {
+        sem++;
+        if (sem > 2) { sem = 1; year++; }
+    }
+    if (year > 4) {
+        const extra = (year - 4) * 2 + sem - 2;
+        return '초과 ' + extra + '학기';
+    }
+    return year + '학년 ' + sem + '학기';
+}
 
 fetchData();
 </script>
