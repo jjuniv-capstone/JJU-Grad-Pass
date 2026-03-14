@@ -461,7 +461,6 @@ GRADES_XML_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 def _fetch_grades(session, hakbun, start_year, current_year):
     """전 학기 성적 조회"""
     all_grades = []
-    logged_keys = False
 
     for year in range(start_year, current_year + 1):
         for semester in (1, 2):
@@ -472,10 +471,6 @@ def _fetch_grades(session, hakbun, start_year, current_year):
             resp.raise_for_status()
 
             rows = _parse_dataset_rows(resp.text, "ds_list")
-            if rows and not logged_keys:
-                print(f"[DEBUG] 성적 첫 행 전체 키: {list(rows[0].keys())}")
-                logged_keys = True
-            print(f"[DEBUG] 성적 {year}-{semester}: ds_list rows={len(rows)}")
             for row in rows:
                 if not row.get("KYOM_NAME"):
                     continue
@@ -647,22 +642,140 @@ def _fetch_courses(session, hakbun, member, year, semester):
     resp = session.post(XMAIN_URL, data=xml.encode("utf-8"), headers=HEADERS)
     resp.raise_for_status()
 
-    # 응답에서 Dataset 이름 확인 (디버그)
-    import xml.etree.ElementTree as _ET
-    root = _ET.fromstring(resp.text)
-    ds_names = [ds.get("id") for ds in root.findall(".//{http://www.nexacroplatform.com/platform/dataset}Dataset")]
-    print(f"[DEBUG] 개설강좌 응답 Dataset 목록: {ds_names}")
-
     all_rows = []
     for ds_id in ("ds_list", "ds_list2", "ds_list3"):
         rows = _parse_dataset_rows(resp.text, ds_id)
         if rows:
-            print(f"[DEBUG] 개설강좌 {ds_id}: {len(rows)}건, 첫 행 키: {list(rows[0].keys())}")
             all_rows.extend(rows)
-        else:
-            print(f"[DEBUG] 개설강좌 {ds_id}: 0건")
 
-    return all_rows, ds_names
+    return all_rows
+
+
+# 시간표 조회 XML
+TIMETABLE_XML_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
+<Root xmlns="http://www.nexacroplatform.com/platform/dataset">
+    <Parameters>
+        <Parameter id="fsp_action">xDefaultAction</Parameter>
+        <Parameter id="fsp_cmd">execute</Parameter>
+        <Parameter id="GV_USER_ID" />
+        <Parameter id="GV_IP_ADDRESS" />
+        <Parameter id="GV_LANGUAGE">KO</Parameter>
+        <Parameter id="fsp_logId">all</Parameter>
+    </Parameters>
+    <Dataset id="ds_cond">
+        <ColumnInfo>
+            <Column id="SUGA_YY" type="STRING" size="4" />
+            <Column id="SUGA_HAKGI" type="STRING" size="1" />
+            <Column id="SUGA_HAKBUN" type="STRING" size="9" />
+        </ColumnInfo>
+        <Rows>
+            <Row>
+                <Col id="SUGA_YY">{year}</Col>
+                <Col id="SUGA_HAKGI">{semester}</Col>
+                <Col id="SUGA_HAKBUN">{hakbun}</Col>
+            </Row>
+        </Rows>
+    </Dataset>
+    <Dataset id="fsp_ds_cmd">
+        <ColumnInfo>
+            <Column id="TX_NAME" type="STRING" size="100" />
+            <Column id="TYPE" type="STRING" size="10" />
+            <Column id="SQL_ID" type="STRING" size="200" />
+            <Column id="KEY_SQL_ID" type="STRING" size="200" />
+            <Column id="KEY_INCREMENT" type="INT" size="10" />
+            <Column id="CALLBACK_SQL_ID" type="STRING" size="200" />
+            <Column id="INSERT_SQL_ID" type="STRING" size="200" />
+            <Column id="UPDATE_SQL_ID" type="STRING" size="200" />
+            <Column id="DELETE_SQL_ID" type="STRING" size="200" />
+            <Column id="SAVE_FLAG_COLUMN" type="STRING" size="200" />
+            <Column id="USE_INPUT" type="STRING" size="1" />
+            <Column id="USE_ORDER" type="STRING" size="1" />
+            <Column id="KEY_ZERO_LEN" type="INT" size="10" />
+            <Column id="BIZ_NAME" type="STRING" size="100" />
+            <Column id="PAGE_NO" type="INT" size="10" />
+            <Column id="PAGE_SIZE" type="INT" size="10" />
+            <Column id="READ_ALL" type="STRING" size="1" />
+            <Column id="EXEC_TYPE" type="STRING" size="2" />
+            <Column id="EXEC" type="STRING" size="1" />
+            <Column id="FAIL" type="STRING" size="1" />
+            <Column id="FAIL_MSG" type="STRING" size="200" />
+            <Column id="EXEC_CNT" type="INT" size="1" />
+            <Column id="MSG" type="STRING" size="200" />
+        </ColumnInfo>
+        <Rows>
+            <Row>
+                <Col id="TYPE">N</Col>
+                <Col id="SQL_ID">uem:UEM_1400_R01</Col>
+                <Col id="KEY_INCREMENT">0</Col>
+                <Col id="USE_INPUT">Y</Col>
+                <Col id="KEY_ZERO_LEN">0</Col>
+                <Col id="EXEC_TYPE">B</Col>
+                <Col id="EXEC_CNT">0</Col>
+            </Row>
+            <Row>
+                <Col id="TYPE">N</Col>
+                <Col id="SQL_ID">uem:UEM_1400_R02</Col>
+                <Col id="KEY_INCREMENT">0</Col>
+                <Col id="KEY_ZERO_LEN">0</Col>
+                <Col id="EXEC_TYPE">B</Col>
+                <Col id="EXEC_CNT">0</Col>
+            </Row>
+            <Row>
+                <Col id="TYPE">N</Col>
+                <Col id="SQL_ID">uem:UEM_1400_R03</Col>
+                <Col id="KEY_INCREMENT">0</Col>
+                <Col id="KEY_ZERO_LEN">0</Col>
+                <Col id="EXEC_TYPE">B</Col>
+                <Col id="EXEC_CNT">0</Col>
+            </Row>
+        </Rows>
+    </Dataset>
+    <Dataset id="gds_member">
+        <ColumnInfo>
+            <Column id="MEM_GUBN" type="string" size="1" />
+            <Column id="MEM_ID" type="string" size="9" />
+            <Column id="MEM_NM" type="string" size="60" />
+        </ColumnInfo>
+        <Rows />
+    </Dataset>
+</Root>"""
+
+
+def _fetch_timetable(session, hakbun, year, semester):
+    """시간표 조회"""
+    xml = TIMETABLE_XML_TEMPLATE.format(
+        year=year, semester=semester, hakbun=hakbun,
+    )
+    resp = session.post(XMAIN_URL, data=xml.encode("utf-8"), headers=HEADERS)
+    resp.raise_for_status()
+
+    # ds_list: 시간표 격자 (교시별 월~토 과목명)
+    grid_rows = _parse_dataset_rows(resp.text, "ds_list")
+    grid = []
+    for row in grid_rows:
+        grid.append({
+            "period": row.get("SIGA_GYOSI", ""),
+            "mon": row.get("WEEK1", ""),
+            "tue": row.get("WEEK2", ""),
+            "wed": row.get("WEEK3", ""),
+            "thu": row.get("WEEK4", ""),
+            "fri": row.get("WEEK5", ""),
+            "sat": row.get("WEEK6", ""),
+            "time": row.get("VIEW_TIME", ""),
+        })
+
+    # ds_list2: 수강 과목 목록
+    subject_rows = _parse_dataset_rows(resp.text, "ds_list2")
+    subjects = []
+    for row in subject_rows:
+        subjects.append({
+            "code": row.get("KANG_GWAMOK_CODE", ""),
+            "bunban": row.get("KANG_BUNBAN", ""),
+            "name": row.get("KANG_NAME", ""),
+            "professor": row.get("GYOSU", ""),
+        })
+
+    return {"grid": grid, "subjects": subjects}
 
 
 def fetch_info_with_cookies(cookies):
@@ -734,8 +847,6 @@ def fetch_info_with_cookies(cookies):
 
     resp = session.post(XMAIN_URL, data=session_check_xml.encode("utf-8"), headers=HEADERS)
     resp.raise_for_status()
-
-    print("[DEBUG] 쿠키 로그인 응답:", resp.text[:1500])
 
     member = _parse_member_info(resp.text)
     if not member:

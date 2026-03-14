@@ -4,7 +4,7 @@ import uuid
 
 from flask import Blueprint, request, jsonify, session
 
-from app.services.instar_service import login_and_get_info, _fetch_graduation_info, _fetch_grades, _fetch_courses
+from app.services.instar_service import login_and_get_info, _fetch_graduation_info, _fetch_grades, _fetch_courses, _fetch_timetable
 import requests as http_requests
 from datetime import datetime
 
@@ -31,9 +31,6 @@ def instar_login():
 
     result = login_and_get_info(mem_id, mem_pw)
 
-    mem_pw = None
-    del data
-
     if result["success"]:
         return jsonify(result)
     else:
@@ -55,26 +52,33 @@ def save_result():
     requirements = []
     grades = []
     courses = []
+    timetable = {"grid": [], "subjects": []}
 
     # JSESSIONID가 있으면 백엔드에서 졸업이수기준 + 성적 조회
     if jsession_id and hakbun:
-        try:
-            s = http_requests.Session()
-            s.headers.update({"User-Agent": "Mozilla/5.0"})
-            s.cookies.set("JSESSIONID", jsession_id, domain="instar.jj.ac.kr")
-            graduation, requirements = _fetch_graduation_info(s, hakbun)
+        s = http_requests.Session()
+        s.headers.update({"User-Agent": "Mozilla/5.0"})
+        s.cookies.set("JSESSIONID", jsession_id, domain="instar.jj.ac.kr")
 
-            # 입학년도 ~ 현재년도까지 성적 조회
+        try:
+            graduation, requirements = _fetch_graduation_info(s, hakbun)
+        except Exception as e:
+            print(f"[졸업이수기준 조회 실패] {e}")
+
+        try:
             iphak = member.get("HAKJ_IPHAK_ILJA", "")
             start_year = int(iphak[:4]) if len(iphak) >= 4 else 2021
             current_year = datetime.now().year
             grades = _fetch_grades(s, hakbun, start_year, current_year)
+        except Exception as e:
+            print(f"[성적 조회 실패] {e}")
 
-            # 현재 학기 개설강좌 조회
-            current_year = datetime.now().year
-            current_month = datetime.now().month
-            current_semester = 1 if current_month <= 7 else 2
-            raw_courses, _ = _fetch_courses(s, hakbun, member, current_year, current_semester)
+        current_year = datetime.now().year
+        current_month = datetime.now().month
+        current_semester = 1 if current_month <= 7 else 2
+
+        try:
+            raw_courses = _fetch_courses(s, hakbun, member, current_year, current_semester)
             for c in raw_courses:
                 if not c.get("KYOM_NAME"):
                     continue
@@ -92,7 +96,12 @@ def save_result():
                     "method": c.get("METHOD_NM", ""),
                 })
         except Exception as e:
-            print(f"[데이터 조회 에러] {e}")
+            print(f"[개설강좌 조회 실패] {e}")
+
+        try:
+            timetable = _fetch_timetable(s, hakbun, current_year, current_semester)
+        except Exception as e:
+            print(f"[시간표 조회 실패] {e}")
 
     result = {
         "success": True,
@@ -102,8 +111,14 @@ def save_result():
             "requirements": requirements,
             "grades": grades,
             "courses": courses,
+            "timetable": timetable,
         },
     }
+    # 이전 결과 삭제
+    old_id = session.get("instar_result_id")
+    if old_id and old_id in _result_store:
+        del _result_store[old_id]
+
     # 서버사이드에 저장 (쿠키 크기 제한 우회)
     result_id = str(uuid.uuid4())
     _result_store[result_id] = result

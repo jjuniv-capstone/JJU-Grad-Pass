@@ -57,4 +57,8 @@ def create_app(config_class=Config) -> Flask:
     def result_page():
         return render_template('result.html')
 
+    @app.route('/timetable')
+    def timetable_page():
+        return render_template('timetable/timetable.html')
+
     return app
